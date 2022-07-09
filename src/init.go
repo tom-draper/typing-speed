@@ -2,7 +2,7 @@ package src
 
 import tea "github.com/charmbracelet/bubbletea"
 
-func initialmodel() model {
+func InitialModel() model {
 	return model{
 		page: MainMenu{
 			choices: []string{"Option 1", "Option 2", "Option 2", "Option 3"},
