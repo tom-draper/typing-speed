@@ -1,41 +1,64 @@
 package src
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (m model) View() string {
-	var s string
+	return m.page.view()
+}
 
-	switch page := m.page.(type) {
-	case MainMenu:
-		s := "Main Menu"
-		// Send to the UI for rendering
-		return s
-	case Settings:
-		s := "Settings\n\n"
-		// Iterate over our choices
-		for i, choice := range page.choices {
+func (m MainMenu) view() string {
+	s := "\n\n      Main Menu\n\n"
+	// Send to the UI for rendering
+	for i, choice := range m.choices {
 
+		// Is the cursor pointing at this choice?
+		cursor := "     " // no cursor
+		if m.cursor == i {
+			cursor = "    >" // cursor!
+		}
+
+		// Render the row
+		s += fmt.Sprintf("%s %s\n", cursor, choice)
+	}
+
+	s += "\n      Press q to quit.\n"
+	return s
+}
+
+func (t Typing) view() string {
+	s := "\n\n      " + fmt.Sprint(t.timeRemaining) + "s\n\n      The quick brown fox jumps over the lazy dog."
+	return s
+}
+
+func (s Settings) view() string {
+	str := "\n\n      Settings\n\n"
+	// Iterate over our choices
+	for i, choice := range s.choices {
+		if choice == "Back" {
 			// Is the cursor pointing at this choice?
-			cursor := " " // no cursor
-			if page.cursor == i {
-				cursor = ">" // cursor!
+			cursor := "\n     " // no cursor
+			if s.cursor == i {
+				cursor = "\n    >" // cursor!
+			}
+			str += fmt.Sprintf("%s %s\n", cursor, choice)
+		} else {
+			// Is the cursor pointing at this choice?
+			cursor := "     " // no cursor
+			if s.cursor == i {
+				cursor = "    >" // cursor!
 			}
 
 			// Is this choice selected?
 			checked := " " // not selected
-			if _, ok := page.selected[i]; ok {
+			if _, ok := s.selected[i]; ok {
 				checked = "x" // selected!
 			}
-
 			// Render the row
-			s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+			str += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
 		}
 
-		s += "\nPress q to quit.\n"
-
-		// Send to the UI for rendering
-		return s
 	}
-
-	return s
+	return str
 }
