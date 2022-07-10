@@ -8,20 +8,15 @@ import (
 
 type TickMsg time.Time
 
-// Send a message every second.
 func tickEvery() tea.Cmd {
+	// Send a message every second
 	return tea.Every(time.Second, func(t time.Time) tea.Msg {
 		return TickMsg(t)
 	})
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "esc":
-			return m, tea.Quit // Exit program
-		}
+	switch msg.(type) {
 	case TickMsg:
 		switch page := m.page.(type) {
 		case Typing:
@@ -36,13 +31,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch page := m.page.(type) {
 	case MainMenu:
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "ctrl+c", "esc":
+				return m, tea.Quit
+			}
+		}
 		m.page = page.handleInput(msg, page)
 		return m, nil
 	case Typing:
 		firstLetter := !page.started
 		m.page = page.handleInput(msg, page)
 		if firstLetter {
-			return m, tickEvery()
+			return m, tickEvery() // Start timer once first key pressed
 		}
 		return m, nil
 	case Settings:
@@ -55,7 +57,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
 	switch msg := msg.(type) {
-
 	case tea.KeyMsg:
 		switch msg.String() {
 
@@ -96,6 +97,8 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 		switch msg.String() {
 		case " ":
 			page.cursor++
+		case "ctrl+c", "esc":
+			return InitMainMenu()
 		default:
 			if msg.String() == string(page.words[page.cursor]) {
 				page.cursor++
@@ -114,6 +117,8 @@ func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "ctrl+c", "esc":
+			return InitMainMenu()
 
 		case "up", "k":
 			if page.cursor > 0 {

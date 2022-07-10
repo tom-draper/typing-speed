@@ -28,7 +28,7 @@ func (m MainMenu) view() string {
 }
 
 func (t Typing) view() string {
-	s := "\n\n      " + fmt.Sprint(t.time.remaining) + "s\n\n" + t.words
+	s := "\n\n      " + fmt.Sprint(t.time.remaining) + "s\n\n      " + t.words
 	return s
 }
 
