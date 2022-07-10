@@ -15,7 +15,7 @@ func InitialModel() model {
 func (m model) Init() tea.Cmd {
 	CallClear()
 	// Just return `nil`, which means "no I/O right now, please."
-	return nil
+	return tickEvery()
 }
 
 func InitMainMenu() MainMenu {
@@ -32,27 +32,12 @@ func InitSettings() Settings {
 	}
 }
 
-func (typing *Typing) runCountdown(m model) {
-	for {
-		diff := time.Since(typing.timeLastUpdated)
-		if diff > time.Second {
-			typing.timeRemaining -= 1
-			typing.timeLastUpdated = time.Now()
-			m.View()
-			if typing.timeRemaining == 0 {
-				m.Update(tea.Msg("timerfinished"))
-			}
-		}
+func InitTyping() Typing {
+	return Typing{
+		selected: make(map[int]struct{}),
+		time: &Time{
+			lastUpdated: time.Now(),
+			remaining:   5,
+		},
 	}
-}
-
-func InitTyping(m model) Typing {
-	typing := Typing{
-		choices:         []string{"Option 1", "Option 2", "Option 3", "Back"},
-		selected:        make(map[int]struct{}),
-		timeLastUpdated: time.Now(),
-		timeRemaining:   5,
-	}
-	go typing.runCountdown(m)
-	return typing
 }

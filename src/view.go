@@ -28,7 +28,7 @@ func (m MainMenu) view() string {
 }
 
 func (t Typing) view() string {
-	s := "\n\n      " + fmt.Sprint(t.timeRemaining) + "s\n\n      The quick brown fox jumps over the lazy dog."
+	s := "\n\n      " + fmt.Sprint(t.time.remaining) + "s\n\n      The quick brown fox jumps over the lazy dog."
 	return s
 }
 

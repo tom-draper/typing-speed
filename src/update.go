@@ -1,8 +1,19 @@
 package src
 
 import (
+	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+type TickMsg time.Time
+
+// Send a message every second.
+func tickEvery() tea.Cmd {
+	return tea.Every(time.Second, func(t time.Time) tea.Msg {
+		return TickMsg(t)
+	})
+}
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -11,16 +22,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q", "esc":
 			return m, tea.Quit // Exit program
 		}
-	}
-
-	if msg == "timerfinished" {
-		m.page = InitMainMenu()
-		return m, nil
+	case TickMsg:
+		switch page := m.page.(type) {
+		case Typing:
+			page.time.remaining -= 1
+			if page.time.remaining < 0 {
+				m.page = InitMainMenu()
+			}
+			return m, tickEvery()
+		default:
+			return m, tickEvery()
+		}
 	}
 
 	switch page := m.page.(type) {
 	case MainMenu:
-		m.page = page.handleInput(msg, page, m)
+		m.page = page.handleInput(msg, page)
 		return m, nil
 	case Typing:
 		m.page = page.handleInput(msg, page)
@@ -33,7 +50,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m MainMenu) handleInput(msg tea.Msg, page MainMenu, model model) Page {
+func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
@@ -57,7 +74,7 @@ func (m MainMenu) handleInput(msg tea.Msg, page MainMenu, model model) Page {
 				switch page.choices[page.cursor] {
 				// Navigate to a new page
 				case "Start":
-					return InitTyping(model)
+					return InitTyping()
 				case "Settings":
 					return InitSettings()
 				default:
@@ -71,31 +88,6 @@ func (m MainMenu) handleInput(msg tea.Msg, page MainMenu, model model) Page {
 }
 
 func (t Typing) handleInput(msg tea.Msg, page Typing) Page {
-
-	switch msg := msg.(type) {
-
-	case tea.KeyMsg:
-		switch msg.String() {
-
-		case "up", "k":
-			if page.cursor > 0 {
-				page.cursor--
-			}
-
-		case "down", "j":
-			if page.cursor < len(page.choices)-1 {
-				page.cursor++
-			}
-
-		case "enter", " ":
-			_, ok := page.selected[page.cursor]
-			if ok {
-				delete(page.selected, page.cursor)
-			} else {
-				page.selected[page.cursor] = struct{}{}
-			}
-		}
-	}
 
 	return page
 }

@@ -14,12 +14,15 @@ type Settings struct {
 	selected map[int]struct{} // which to-do items are selected
 }
 
+type Time struct {
+	lastUpdated time.Time
+	remaining   int
+}
+
 type Typing struct {
-	choices         []string         // items on the to-do list
-	cursor          int              // which to-do list item our cursor is pointing at
-	selected        map[int]struct{} // which to-do items are selected
-	timeLastUpdated time.Time
-	timeRemaining   int
+	cursor   int              // which to-do list item our cursor is pointing at
+	selected map[int]struct{} // which to-do items are selected
+	time     *Time
 }
 
 type Page interface {
