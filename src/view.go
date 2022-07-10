@@ -23,12 +23,12 @@ func (m MainMenu) view() string {
 		s += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
 
-	s += "\n      Press q to quit.\n"
+	s += "\n      Press Esc to exit.\n"
 	return s
 }
 
 func (t Typing) view() string {
-	s := "\n\n      " + fmt.Sprint(t.time.remaining) + "s\n\n      The quick brown fox jumps over the lazy dog."
+	s := "\n\n      " + fmt.Sprint(t.time.remaining) + "s\n\n" + t.words
 	return s
 }
 

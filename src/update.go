@@ -19,13 +19,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q", "esc":
+		case "ctrl+c", "esc":
 			return m, tea.Quit // Exit program
 		}
 	case TickMsg:
 		switch page := m.page.(type) {
 		case Typing:
-			page.time.remaining -= 1
+			page.time.remaining--
 			if page.time.remaining < 0 {
 				m.page = InitMainMenu()
 				return m, nil
@@ -37,14 +37,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch page := m.page.(type) {
 	case MainMenu:
 		m.page = page.handleInput(msg, page)
-		switch m.page.(type) {
-		case Typing:
-			return m, tickEvery()
-		default:
-			return m, nil
-		}
+		return m, nil
 	case Typing:
+		firstLetter := !page.started
 		m.page = page.handleInput(msg, page)
+		if firstLetter {
+			return m, tickEvery()
+		}
 		return m, nil
 	case Settings:
 		m.page = page.handleInput(msg, page)
@@ -91,14 +90,28 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
 	return page
 }
 
-func (t Typing) handleInput(msg tea.Msg, page Typing) Page {
+func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case " ":
+			page.cursor++
+		default:
+			if msg.String() == string(page.words[page.cursor]) {
+				page.cursor++
+			}
+		}
+	}
+
+	if !page.started {
+		page.started = true
+	}
 
 	return page
 }
 
-func (s Settings) handleInput(msg tea.Msg, page Settings) Page {
+func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 	switch msg := msg.(type) {
-
 	case tea.KeyMsg:
 		switch msg.String() {
 

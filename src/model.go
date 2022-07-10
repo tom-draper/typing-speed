@@ -20,9 +20,10 @@ type Time struct {
 }
 
 type Typing struct {
-	cursor   int              // which to-do list item our cursor is pointing at
-	selected map[int]struct{} // which to-do items are selected
-	time     *Time
+	words   string
+	started bool
+	cursor  int // which to-do list item our cursor is pointing at
+	time    *Time
 }
 
 type Page interface {

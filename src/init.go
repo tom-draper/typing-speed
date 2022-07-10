@@ -34,10 +34,11 @@ func InitSettings() Settings {
 
 func InitTyping() Typing {
 	return Typing{
-		selected: make(map[int]struct{}),
+		words:   "The quick brown fox jumps over the lazy dog",
+		started: false,
 		time: &Time{
 			lastUpdated: time.Now(),
-			remaining:   5,
+			remaining:   30,
 		},
 	}
 }
