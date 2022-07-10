@@ -15,7 +15,7 @@ func InitialModel() model {
 func (m model) Init() tea.Cmd {
 	CallClear()
 	// Just return `nil`, which means "no I/O right now, please."
-	return tickEvery()
+	return nil
 }
 
 func InitMainMenu() MainMenu {

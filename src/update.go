@@ -28,17 +28,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			page.time.remaining -= 1
 			if page.time.remaining < 0 {
 				m.page = InitMainMenu()
+				return m, nil
 			}
-			return m, tickEvery()
-		default:
-			return m, tickEvery()
 		}
+		return m, tickEvery()
 	}
 
 	switch page := m.page.(type) {
 	case MainMenu:
 		m.page = page.handleInput(msg, page)
-		return m, nil
+		switch m.page.(type) {
+		case Typing:
+			return m, tickEvery()
+		default:
+			return m, nil
+		}
 	case Typing:
 		m.page = page.handleInput(msg, page)
 		return m, nil
