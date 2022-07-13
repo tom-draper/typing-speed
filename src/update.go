@@ -21,10 +21,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch page := m.page.(type) {
 		case Typing:
 			page.time.remaining--
+			if page.time.remaining < 1 {
+				m.page = finished(page)
+				return m, nil
+			}
 			return m, tickEvery()
-		default:
-			return m, nil
 		}
+		return m, nil
 	}
 
 	switch page := m.page.(type) {
@@ -37,23 +40,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		m.page = page.handleInput(msg, page)
-		return m, nil
 	case Typing:
 		firstLetter := !page.started
 		m.page = page.handleInput(msg, page)
 		if firstLetter {
 			return m, tickEvery() // Start timer once first key pressed
 		}
-		return m, nil
 	case Results:
 		m.page = page.handleInput(msg, page)
-		return m, nil
 	case Settings:
 		m.page = page.handleInput(msg, page)
-		return m, nil
-	default:
-		return m, nil
 	}
+	return m, nil
 }
 
 func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
@@ -61,12 +59,12 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
 	case tea.KeyMsg:
 		switch msg.String() {
 
-		case "up", "k":
+		case "up", "k", "w":
 			if page.cursor > 0 {
 				page.cursor--
 			}
 
-		case "down", "j":
+		case "down", "j", "s":
 			if page.cursor < len(page.choices)-1 {
 				page.cursor++
 			}
@@ -95,25 +93,29 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
 func correct_wpm(chars []string, correct *Correct, time int) float32 {
 	correct_words := 0
 	correct_word := true
-	for i := range chars {
-		if i < correct.Length() && !correct.AtIndex(i) {
+	for i := 0; i < correct.Length(); i++ {
+		if !correct.AtIndex(i) {
 			// If a letter in current word is incorect, set flag
 			correct_word = false
-		} else if chars[i] == " " {
-			// Finished word
-			if correct_word {
-				correct_words++
-			}
-			correct_word = true // Reset
+		} else if chars[i] == " " && correct_word {
+			correct_words++
+		} else {
+			correct_word = true
 		}
 	}
-	// Register the final word
-	if correct_word {
-		correct_words++
+	if correct.Length() == len(chars) && correct_word {
+		// If made it to the final character
+		correct_words++ // Register the final word
 	}
+
 	minutes := float32(time) / 60.0
 	return float32(correct_words) / minutes
 
+}
+
+func finished(page Typing) Results {
+	wpm := correct_wpm(page.words, page.correct, page.time.limit-page.time.remaining)
+	return InitResults(wpm, page.mistakes)
 }
 
 func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
@@ -127,18 +129,15 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 			page.cursor--
 		default:
 			if page.cursor >= len(page.words)-1 {
-				// If finished typing all chars
-				wpm := correct_wpm(page.words, page.correct, page.time.limit-page.time.remaining)
-				return InitResults(wpm, page.mistakes)
+				return finished(page) // If finished typing all chars
 			}
 			if msg.String() == string(page.words[page.cursor]) {
 				page.correct.Push(true)
-				page.cursor++
 			} else {
 				page.correct.Push(false)
-				page.cursor++
 				page.mistakes++
 			}
+			page.cursor++
 		}
 	}
 
@@ -153,6 +152,8 @@ func (results Results) handleInput(msg tea.Msg, page Results) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "ctrl+r", "r":
+			return InitTyping()
 		case "ctrl+c", "esc", "enter":
 			return InitMainMenu()
 		}
@@ -168,12 +169,12 @@ func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 		case "ctrl+c", "esc":
 			return InitMainMenu()
 
-		case "up", "k":
+		case "up", "k", "w":
 			if page.cursor > 0 {
 				page.cursor--
 			}
 
-		case "down", "j":
+		case "down", "j", "s":
 			if page.cursor < len(page.choices)-1 {
 				page.cursor++
 			}
