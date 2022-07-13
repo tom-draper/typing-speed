@@ -42,11 +42,7 @@ func (typing Typing) view(styles Styles) string {
 
 	var entered strings.Builder
 	for i := 0; i < typing.correct.Length(); i++ {
-		correct, err := typing.correct.AtIndex(i)
-		if err != nil {
-			panic(err)
-		}
-		if correct {
+		if typing.correct.AtIndex(i) {
 			entered.WriteString(style(typing.words[i], styles.correct))
 		} else {
 			entered.WriteString(style(typing.words[i], styles.mistakes))
@@ -60,6 +56,23 @@ func (typing Typing) view(styles Styles) string {
 		toEnter := style(strings.Join(typing.words[typing.cursor+1:], ""), styles.toEnter)
 		sb.WriteString(toEnter)
 	}
+
+	return sb.String()
+}
+
+func (results Results) view(styles Styles) string {
+	var sb strings.Builder
+
+	title := style("\n\n      Result\n", styles.faintGreen)
+	sb.WriteString(title)
+
+	sb.WriteString("\n      wpm: ")
+	wpm := style(fmt.Sprintf("%.2f", results.wpm), styles.greener)
+	sb.WriteString(wpm)
+
+	sb.WriteString("\n      mistakes: ")
+	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
+	sb.WriteString(mistakes)
 
 	return sb.String()
 }

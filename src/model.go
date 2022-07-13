@@ -20,15 +20,22 @@ type Settings struct {
 
 type Time struct {
 	lastUpdated time.Time
+	limit       int
 	remaining   int
 }
 
 type Typing struct {
-	words   []string
-	correct Correct
-	started bool
-	cursor  int
-	time    *Time
+	words    []string
+	correct  *Correct
+	started  bool
+	mistakes int
+	cursor   int
+	time     *Time
+}
+
+type Results struct {
+	wpm      float32
+	mistakes int
 }
 
 type Page interface {

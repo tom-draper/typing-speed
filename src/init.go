@@ -64,11 +64,21 @@ func InitSettings() Settings {
 
 func InitTyping() Typing {
 	return Typing{
-		words:   strings.Split("The quick brown fox jumped over the lazy dog", ""),
-		started: false,
+		words:    strings.Split("The quick brown fox jumped over the lazy dog", ""),
+		correct:  NewCorrect(),
+		started:  false,
+		mistakes: 0,
 		time: &Time{
 			lastUpdated: time.Now(),
+			limit:       30,
 			remaining:   30,
 		},
+	}
+}
+
+func InitResults(wpm float32, mistakes int) Results {
+	return Results{
+		wpm:      wpm,
+		mistakes: mistakes,
 	}
 }

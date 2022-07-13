@@ -6,11 +6,11 @@ import (
 )
 
 type Correct struct {
-	lock  sync.Mutex // you don't have to do this if you don't want thread safety
+	lock  sync.Mutex
 	stack []bool
 }
 
-func NewStack() *Correct {
+func NewCorrect() *Correct {
 	return &Correct{sync.Mutex{}, make([]bool, 0)}
 }
 
@@ -35,14 +35,14 @@ func (c *Correct) Pop() (bool, error) {
 	return res, nil
 }
 
-func (c *Correct) AtIndex(index int) (bool, error) {
+func (c *Correct) AtIndex(index int) bool {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	if index > len(c.stack) {
-		return false, errors.New("index value exceeds stack length")
+		panic(errors.New("index value exceeds stack length"))
 	}
-	return c.stack[index], nil
+	return c.stack[index]
 }
 
 func (c *Correct) Length() int {
