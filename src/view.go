@@ -63,23 +63,20 @@ func (s Settings) view(styles Styles) string {
 	for i, choice := range s.choices {
 		var row string
 		if choice == "Back" {
-			// Is the cursor pointing at this choice?
-			cursor := "\n     " // no cursor
+			cursor := "\n     "
 			if s.cursor == i {
-				cursor = style("\n    >", styles.greener) // cursor!
+				cursor = style("\n    >", styles.greener) // Cursor
 			}
 			row = fmt.Sprintf("%s %s\n", cursor, choice)
 		} else {
-			// Is the cursor pointing at this choice?
-			cursor := "     " // no cursor
+			cursor := "     "
 			if s.cursor == i {
-				cursor = "    >" // cursor!
+				cursor = "    >" // Cursor
 			}
 
-			// Is this choice selected?
-			checked := " " // not selected
+			checked := " "
 			if _, ok := s.selected[i]; ok {
-				checked = "x" // selected!
+				checked = "x" // Choice selected
 			}
 			// Render the row
 			row = fmt.Sprintf("%s [%s] %s\n", style(cursor, styles.greener), checked, choice)
