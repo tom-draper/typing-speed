@@ -34,48 +34,61 @@ func (menu MainMenu) view(styles Styles) string {
 	return sb.String()
 }
 
-func (t Typing) view(styles Styles) string {
+func (typing Typing) view(styles Styles) string {
 	var sb strings.Builder
 
-	time := style(fmt.Sprintf("\n\n      %ds\n\n      ", t.time.remaining), styles.faintGreen)
+	time := style(fmt.Sprintf("\n\n      %ds\n\n      ", typing.time.remaining), styles.faintGreen)
 	sb.WriteString(time)
 
-	entered := style("the quick brown fox ju", styles.correct)
-	sb.WriteString(entered)
+	var entered strings.Builder
+	print(typing.correct.Length())
+	for i := 0; i < typing.correct.Length(); i++ {
+		correct, err := typing.correct.AtIndex(i)
+		if err != nil {
+			panic(err)
+		}
+		if correct {
+			entered.WriteString(style(typing.words[i], styles.correct))
+		} else {
+			entered.WriteString(style(typing.words[i], styles.mistakes))
+		}
+	}
+	sb.WriteString(entered.String())
 
-	cursor := style("m", styles.cursor)
+	cursor := style(typing.words[typing.cursor], styles.cursor)
 	sb.WriteString(cursor)
 
-	toEnter := style("ped over the lazy dog", styles.toEnter)
-	// toEnter := style(fmt.Sprintf("\n\n      %s", t.words), styles.toEnter)
-	sb.WriteString(toEnter)
+	if typing.cursor < len(typing.words) {
+		toEnter := style(strings.Join(typing.words[typing.cursor+1:], ""), styles.toEnter)
+		sb.WriteString(toEnter)
+	}
 
 	return sb.String()
 }
 
-func (s Settings) view(styles Styles) string {
+func (settings Settings) view(styles Styles) string {
 	var sb strings.Builder
 
 	title := style("\n\n      Settings\n\n", styles.faintGreen)
 	sb.WriteString(title)
 
 	// Iterate over our choices
-	for i, choice := range s.choices {
+	for i, choice := range settings.choices {
 		var row string
 		if choice == "Back" {
 			cursor := "\n     "
-			if s.cursor == i {
+			if settings.cursor == i {
 				cursor = style("\n    >", styles.greener) // Cursor
 			}
 			row = fmt.Sprintf("%s %s\n", cursor, choice)
 		} else {
 			cursor := "     "
-			if s.cursor == i {
+			if settings.cursor == i {
 				cursor = "    >" // Cursor
 			}
 
 			checked := " "
-			if _, ok := s.selected[i]; ok {
+			if _, ok := settings.selected[i]; ok {
 				checked = "x" // Choice selected
 			}
 			// Render the row

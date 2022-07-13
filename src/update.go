@@ -95,14 +95,20 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case " ":
-			page.cursor++
 		case "ctrl+c", "esc":
 			return InitMainMenu()
+		case "backspace":
+			page.correct.Pop()
+			page.cursor--
 		default:
 			if msg.String() == string(page.words[page.cursor]) {
+				page.correct.Push(true)
+				page.cursor++
+			} else {
+				page.correct.Push(false)
 				page.cursor++
 			}
+			print(typing.correct.Length())
 		}
 	}
 
