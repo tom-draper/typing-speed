@@ -41,7 +41,6 @@ func (typing Typing) view(styles Styles) string {
 	sb.WriteString(time)
 
 	var entered strings.Builder
-	print(typing.correct.Length())
 	for i := 0; i < typing.correct.Length(); i++ {
 		correct, err := typing.correct.AtIndex(i)
 		if err != nil {
@@ -55,10 +54,9 @@ func (typing Typing) view(styles Styles) string {
 	}
 	sb.WriteString(entered.String())
 
-	cursor := style(typing.words[typing.cursor], styles.cursor)
-	sb.WriteString(cursor)
-
 	if typing.cursor < len(typing.words) {
+		cursor := style(typing.words[typing.cursor], styles.cursor)
+		sb.WriteString(cursor)
 		toEnter := style(strings.Join(typing.words[typing.cursor+1:], ""), styles.toEnter)
 		sb.WriteString(toEnter)
 	}

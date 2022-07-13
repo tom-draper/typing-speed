@@ -101,6 +101,10 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 			page.correct.Pop()
 			page.cursor--
 		default:
+			if page.cursor >= len(page.words)-1 {
+				// If finished typing all chars
+				return InitMainMenu()
+			}
 			if msg.String() == string(page.words[page.cursor]) {
 				page.correct.Push(true)
 				page.cursor++
@@ -108,7 +112,6 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 				page.correct.Push(false)
 				page.cursor++
 			}
-			print(typing.correct.Length())
 		}
 	}
 

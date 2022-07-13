@@ -64,7 +64,7 @@ func InitSettings() Settings {
 
 func InitTyping() Typing {
 	return Typing{
-		words:   strings.Split("The quick brown fox jumps over the lazy dog", ""),
+		words:   strings.Split("The quick brown fox jumped over the lazy dog", ""),
 		started: false,
 		time: &Time{
 			lastUpdated: time.Now(),

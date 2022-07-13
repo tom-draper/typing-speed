@@ -35,13 +35,18 @@ func (c *Correct) Pop() (bool, error) {
 	return res, nil
 }
 
-func (c Correct) AtIndex(index int) (bool, error) {
+func (c *Correct) AtIndex(index int) (bool, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	if index > len(c.stack) {
 		return false, errors.New("index value exceeds stack length")
 	}
 	return c.stack[index], nil
 }
 
-func (c Correct) Length() int {
+func (c *Correct) Length() int {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	return len(c.stack)
 }
