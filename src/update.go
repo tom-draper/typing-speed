@@ -104,8 +104,8 @@ func correct_wpm(chars []string, correct *Correct, time int) float32 {
 		}
 	}
 	if correct.Length() == len(chars) && correct_word {
-		// If made it to the final character
-		correct_words++ // Register the final word
+		// If made it to the final character, register the final word
+		correct_words++
 	}
 
 	minutes := float32(time) / 60.0
