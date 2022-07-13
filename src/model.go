@@ -1,17 +1,21 @@
 package src
 
-import "time"
+import (
+	"time"
+
+	"github.com/muesli/termenv"
+)
 
 type MainMenu struct {
-	choices  []string         // items on the to-do list
-	cursor   int              // which to-do list item our cursor is pointing at
-	selected map[int]struct{} // which to-do items are selected
+	choices  []string
+	cursor   int
+	selected map[int]struct{}
 }
 
 type Settings struct {
-	choices  []string         // items on the to-do list
-	cursor   int              // which to-do list item our cursor is pointing at
-	selected map[int]struct{} // which to-do items are selected
+	choices  []string
+	cursor   int
+	selected map[int]struct{}
 }
 
 type Time struct {
@@ -20,16 +24,30 @@ type Time struct {
 }
 
 type Typing struct {
-	words   string
+	words   []string
 	started bool
-	cursor  int // which to-do list item our cursor is pointing at
+	cursor  int
 	time    *Time
 }
 
 type Page interface {
-	view() string
+	view(style Styles) string
+}
+
+type Style func(string) termenv.Style
+
+type Styles struct {
+	correct      Style
+	toEnter      Style
+	mistakes     Style
+	cursor       Style
+	runningTimer Style
+	stoppedTimer Style
+	greener      Style
+	faintGreen   Style
 }
 
 type model struct {
-	page Page
+	page   Page
+	styles Styles
 }

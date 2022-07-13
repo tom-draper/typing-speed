@@ -1,14 +1,44 @@
 package src
 
 import (
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/muesli/termenv"
 )
 
 func InitialModel() model {
+	profile := termenv.ColorProfile()
+	foreground := termenv.ForegroundColor()
 	return model{
 		page: InitMainMenu(),
+		styles: Styles{
+			correct: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(foreground)
+			},
+			toEnter: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(foreground).Faint()
+			},
+			mistakes: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("1")).Underline()
+			},
+			cursor: func(str string) termenv.Style {
+				return termenv.String(str).Reverse().Bold()
+			},
+			runningTimer: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("2"))
+			},
+			stoppedTimer: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("2")).Faint()
+			},
+			greener: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("6")).Faint()
+			},
+			faintGreen: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("10")).Faint()
+			},
+		},
 	}
 }
 
@@ -34,7 +64,7 @@ func InitSettings() Settings {
 
 func InitTyping() Typing {
 	return Typing{
-		words:   "The quick brown fox jumps over the lazy dog",
+		words:   strings.Split("The quick brown fox jumps over the lazy dog", ""),
 		started: false,
 		time: &Time{
 			lastUpdated: time.Now(),

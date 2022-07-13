@@ -2,47 +2,73 @@ package src
 
 import (
 	"fmt"
+	"strings"
 )
 
 func (m model) View() string {
-	return m.page.view()
+	return m.page.view(m.styles)
 }
 
-func (m MainMenu) view() string {
-	s := "\n\n      Main Menu\n\n"
+func (menu MainMenu) view(styles Styles) string {
+	var sb strings.Builder
+
+	title := style("\n\n      Main Menu\n\n", styles.faintGreen)
+	sb.WriteString(title)
 	// Send to the UI for rendering
-	for i, choice := range m.choices {
+	for i, choice := range menu.choices {
 
 		// Is the cursor pointing at this choice?
 		cursor := "     " // no cursor
-		if m.cursor == i {
-			cursor = "    >" // cursor!
+		if menu.cursor == i {
+			cursor = style("    >", styles.greener) // cursor!
 		}
 
 		// Render the row
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
+		row := fmt.Sprintf("%s %s\n", cursor, choice)
+		sb.WriteString(row)
 	}
 
-	s += "\n      Press Esc to exit.\n"
-	return s
+	exit_instr := style("\n      Press Esc to exit.\n", styles.toEnter)
+	sb.WriteString(exit_instr)
+
+	return sb.String()
 }
 
-func (t Typing) view() string {
-	s := "\n\n      " + fmt.Sprint(t.time.remaining) + "s\n\n      " + t.words
-	return s
+func (t Typing) view(styles Styles) string {
+	var sb strings.Builder
+
+	time := style(fmt.Sprintf("\n\n      %ds\n\n      ", t.time.remaining), styles.faintGreen)
+	sb.WriteString(time)
+
+	entered := style("the quick brown fox ju", styles.correct)
+	sb.WriteString(entered)
+
+	cursor := style("m", styles.cursor)
+	sb.WriteString(cursor)
+
+	toEnter := style("ped over the lazy dog", styles.toEnter)
+	// toEnter := style(fmt.Sprintf("\n\n      %s", t.words), styles.toEnter)
+	sb.WriteString(toEnter)
+
+	return sb.String()
 }
 
-func (s Settings) view() string {
-	str := "\n\n      Settings\n\n"
+func (s Settings) view(styles Styles) string {
+	var sb strings.Builder
+
+	title := style("\n\n      Settings\n\n", styles.faintGreen)
+	sb.WriteString(title)
+
 	// Iterate over our choices
 	for i, choice := range s.choices {
+		var row string
 		if choice == "Back" {
 			// Is the cursor pointing at this choice?
 			cursor := "\n     " // no cursor
 			if s.cursor == i {
-				cursor = "\n    >" // cursor!
+				cursor = style("\n    >", styles.greener) // cursor!
 			}
-			str += fmt.Sprintf("%s %s\n", cursor, choice)
+			row = fmt.Sprintf("%s %s\n", cursor, choice)
 		} else {
 			// Is the cursor pointing at this choice?
 			cursor := "     " // no cursor
@@ -56,9 +82,14 @@ func (s Settings) view() string {
 				checked = "x" // selected!
 			}
 			// Render the row
-			str += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+			row = fmt.Sprintf("%s [%s] %s\n", style(cursor, styles.greener), checked, choice)
 		}
+		sb.WriteString(row)
 
 	}
-	return str
+	return sb.String()
+}
+
+func style(s string, style Style) string {
+	return style(s).String()
 }
