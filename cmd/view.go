@@ -3,24 +3,26 @@ package cmd
 import (
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 func (m model) View() string {
-	return m.page.view(m.styles)
+	return m.page.view(m.styles, m.width, m.height)
 }
 
-func (menu MainMenu) view(styles Styles) string {
+func (menu MainMenu) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("\n\n      Main Menu\n\n", styles.faintGreen)
+	title := style("Main Menu\n\n", styles.faintGreen)
 	sb.WriteString(title)
 	// Send to the UI for rendering
 	for i, choice := range menu.choices {
 
 		// Is the cursor pointing at this choice?
-		cursor := "     " // no cursor
+		cursor := " " // no cursor
 		if menu.cursor == i {
-			cursor = style("    >", styles.greener) // cursor!
+			cursor = style(">", styles.greener) // cursor!
 		}
 
 		// Render the row
@@ -28,16 +30,18 @@ func (menu MainMenu) view(styles Styles) string {
 		sb.WriteString(row)
 	}
 
-	exit_instr := style("\n      Press Esc to exit.\n", styles.toEnter)
+	exit_instr := style("\nPress Esc to exit.\n", styles.toEnter)
 	sb.WriteString(exit_instr)
 
-	return sb.String()
+	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
+
+	return lipgloss.Place(width-10, height, lipgloss.Center, lipgloss.Center, s)
 }
 
-func (typing Typing) view(styles Styles) string {
+func (typing Typing) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	time := style(fmt.Sprintf("\n\n      %ds\n\n      ", typing.time.remaining), styles.faintGreen)
+	time := style(fmt.Sprintf("%ds\n\n", typing.time.remaining), styles.faintGreen)
 	sb.WriteString(time)
 
 	// Entered words
@@ -60,45 +64,53 @@ func (typing Typing) view(styles Styles) string {
 		sb.WriteString(toEnter)
 	}
 
-	return sb.String()
+	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
+
+	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, s)
 }
 
-func (results Results) view(styles Styles) string {
+func (results Results) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("\n\n      Result\n", styles.faintGreen)
+	title := style("Result\n", styles.faintGreen)
 	sb.WriteString(title)
 
-	sb.WriteString("\n      wpm: ")
+	sb.WriteString("\nWPM: ")
 	wpm := style(fmt.Sprintf("%.2f", results.wpm), styles.greener)
 	sb.WriteString(wpm)
 
-	sb.WriteString("\n      mistakes: ")
+	sb.WriteString("\nAccuracy: ")
+	accuracy := style(fmt.Sprintf("%.2f", results.accuracy)+"%", styles.greener)
+	sb.WriteString(accuracy)
+
+	sb.WriteString("\nMistakes: ")
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
 
-	return sb.String()
+	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
+
+	return lipgloss.Place(width-14, height, lipgloss.Center, lipgloss.Center, s)
 }
 
-func (settings Settings) view(styles Styles) string {
+func (settings Settings) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("\n\n      Settings\n\n", styles.faintGreen)
+	title := style("Settings\n\n", styles.faintGreen)
 	sb.WriteString(title)
 
 	// Iterate over our choices
 	for i, choice := range settings.choices {
 		var row string
 		if choice == "Back" {
-			cursor := "\n     "
+			cursor := "\n "
 			if settings.cursor == i {
-				cursor = style("\n    >", styles.greener) // Cursor
+				cursor = style("\n>", styles.greener) // Cursor
 			}
 			row = fmt.Sprintf("%s %s\n", cursor, choice)
 		} else {
-			cursor := "     "
+			cursor := " "
 			if settings.cursor == i {
-				cursor = "    >" // Cursor
+				cursor = ">" // Cursor
 			}
 
 			checked := " "
@@ -111,7 +123,10 @@ func (settings Settings) view(styles Styles) string {
 		sb.WriteString(row)
 
 	}
-	return sb.String()
+
+	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
+
+	return lipgloss.Place(width-14, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func style(s string, style Style) string {

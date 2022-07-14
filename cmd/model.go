@@ -36,11 +36,12 @@ type Typing struct {
 
 type Results struct {
 	wpm      float32
+	accuracy float32
 	mistakes int
 }
 
 type Page interface {
-	view(style Styles) string
+	view(style Styles, width int, height int) string
 }
 
 type Style func(string) termenv.Style
@@ -59,4 +60,6 @@ type Styles struct {
 type model struct {
 	page   Page
 	styles Styles
+	width  int
+	height int
 }

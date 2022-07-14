@@ -7,13 +7,27 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/termenv"
+	termbox "github.com/nsf/termbox-go"
 )
+
+func terminalDimensions() (int, int) {
+	defer termbox.Close()
+	if err := termbox.Init(); err != nil {
+		panic(err)
+	}
+	w, h := termbox.Size()
+	return w, h
+}
 
 func InitialModel() model {
 	profile := termenv.ColorProfile()
 	foreground := termenv.ForegroundColor()
+	w, h := terminalDimensions()
+
 	return model{
-		page: InitMainMenu(),
+		page:   InitMainMenu(),
+		width:  w,
+		height: h,
 		styles: Styles{
 			correct: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(foreground)
@@ -96,9 +110,10 @@ func InitTyping() Typing {
 	}
 }
 
-func InitResults(wpm float32, mistakes int) Results {
+func InitResults(wpm float32, accuracy float32, mistakes int) Results {
 	return Results{
 		wpm:      wpm,
+		accuracy: accuracy,
 		mistakes: mistakes,
 	}
 }

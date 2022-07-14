@@ -87,11 +87,13 @@ func extract_paragraphs(doc *goquery.Document) string {
 	max_words := 300
 	n_words := 0
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
-		if n_words < max_words {
-			paragraph := s.Text()
+		paragraph := s.Text()
+		isPar, _ := regexp.Match(`[A-Za-z]`, []byte(paragraph))
+		if isPar && n_words < max_words {
 			paragraph = b_re.ReplaceAllString(paragraph, "")
 			paragraph = p_re.ReplaceAllString(paragraph, "")
 			paragraph = nl_re.ReplaceAllString(paragraph, "")
+			paragraph = strings.TrimSpace(paragraph)
 			words := strings.Split(paragraph, " ")
 			for i := range words {
 				text.WriteString(words[i])

@@ -115,7 +115,8 @@ func correct_wpm(chars []string, correct *Correct, time int) float32 {
 
 func finished(page Typing) Results {
 	wpm := correct_wpm(page.chars, page.correct, page.time.limit-page.time.remaining)
-	return InitResults(wpm, page.mistakes)
+	accuracy := page.correct.Accuracy()
+	return InitResults(wpm, accuracy, page.mistakes)
 }
 
 func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
