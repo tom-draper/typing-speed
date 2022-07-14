@@ -114,7 +114,7 @@ func correct_wpm(chars []string, correct *Correct, time int) float32 {
 }
 
 func finished(page Typing) Results {
-	wpm := correct_wpm(page.words, page.correct, page.time.limit-page.time.remaining)
+	wpm := correct_wpm(page.chars, page.correct, page.time.limit-page.time.remaining)
 	return InitResults(wpm, page.mistakes)
 }
 
@@ -128,10 +128,10 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 			page.correct.Pop()
 			page.cursor--
 		default:
-			if page.cursor >= len(page.words)-1 {
+			if page.cursor >= len(page.chars)-1 {
 				return finished(page) // If finished typing all chars
 			}
-			if msg.String() == string(page.words[page.cursor]) {
+			if msg.String() == string(page.chars[page.cursor]) {
 				page.correct.Push(true)
 			} else {
 				page.correct.Push(false)

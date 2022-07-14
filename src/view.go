@@ -40,20 +40,23 @@ func (typing Typing) view(styles Styles) string {
 	time := style(fmt.Sprintf("\n\n      %ds\n\n      ", typing.time.remaining), styles.faintGreen)
 	sb.WriteString(time)
 
+	// Entered words
 	var entered strings.Builder
 	for i := 0; i < typing.correct.Length(); i++ {
 		if typing.correct.AtIndex(i) {
-			entered.WriteString(style(typing.words[i], styles.correct))
+			entered.WriteString(style(typing.chars[i], styles.correct))
 		} else {
-			entered.WriteString(style(typing.words[i], styles.mistakes))
+			entered.WriteString(style(typing.chars[i], styles.mistakes))
 		}
 	}
 	sb.WriteString(entered.String())
 
-	if typing.cursor < len(typing.words) {
-		cursor := style(typing.words[typing.cursor], styles.cursor)
+	if typing.cursor < len(typing.chars) {
+		// Cursor
+		cursor := style(typing.chars[typing.cursor], styles.cursor)
 		sb.WriteString(cursor)
-		toEnter := style(strings.Join(typing.words[typing.cursor+1:], ""), styles.toEnter)
+		// To enter
+		toEnter := style(strings.Join(typing.chars[typing.cursor+1:], ""), styles.toEnter)
 		sb.WriteString(toEnter)
 	}
 

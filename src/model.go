@@ -25,8 +25,9 @@ type Time struct {
 }
 
 type Typing struct {
-	words    []string
+	chars    []string
 	correct  *Correct
+	width    int
 	started  bool
 	mistakes int
 	cursor   int

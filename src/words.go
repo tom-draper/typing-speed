@@ -79,16 +79,28 @@ func html_doc(url string) *goquery.Document {
 func extract_paragraphs(doc *goquery.Document) string {
 	// Find the review items
 	var text strings.Builder
-	b_re := regexp.MustCompile(`\s?\[[^\]]*\]\s?`)
-	p_re := regexp.MustCompile(`\([^\)]*\)`)
+
+	b_re := regexp.MustCompile(`\s?\[[^\]]*\]`)
+	p_re := regexp.MustCompile(`\s?\([^\)]*\)`)
 	nl_re := regexp.MustCompile(`\n`)
+
+	max_words := 300
+	n_words := 0
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
-		if i < 10 {
+		if n_words < max_words {
 			paragraph := s.Text()
 			paragraph = b_re.ReplaceAllString(paragraph, "")
 			paragraph = p_re.ReplaceAllString(paragraph, "")
 			paragraph = nl_re.ReplaceAllString(paragraph, "")
-			text.WriteString(paragraph)
+			words := strings.Split(paragraph, " ")
+			for i := range words {
+				text.WriteString(words[i])
+				text.WriteString(" ")
+				n_words++
+				if n_words >= max_words {
+					break
+				}
+			}
 		}
 	})
 

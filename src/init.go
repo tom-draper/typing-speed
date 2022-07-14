@@ -5,6 +5,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/termenv"
 )
 
@@ -62,12 +63,29 @@ func InitSettings() Settings {
 	}
 }
 
+func formatText(text string) []string {
+	text = strings.ReplaceAll(text, " ", "|")
+
+	ww := wordwrap.NewWriter(50)
+	ww.Breakpoints = []rune{'|'}
+	ww.KeepNewlines = false
+	ww.Write([]byte(text))
+	ww.Close()
+
+	text = strings.ReplaceAll(ww.String(), "|", " ")
+
+	chars := strings.Split(text, "")
+
+	return chars
+}
+
 func InitTyping() Typing {
+	width := 50
 	text := wiki_words()
 	return Typing{
-		// words:    strings.Split("The quick brown fox jumped over the lazy dog", ""),
-		words:    strings.Split(text, ""),
+		chars:    formatText(text),
 		correct:  NewCorrect(),
+		width:    width,
 		started:  false,
 		mistakes: 0,
 		time: &Time{
