@@ -63,8 +63,10 @@ func InitSettings() Settings {
 }
 
 func InitTyping() Typing {
+	text := wiki_words()
 	return Typing{
-		words:    strings.Split("The quick brown fox jumped over the lazy dog", ""),
+		// words:    strings.Split("The quick brown fox jumped over the lazy dog", ""),
+		words:    strings.Split(text, ""),
 		correct:  NewCorrect(),
 		started:  false,
 		mistakes: 0,
