@@ -86,10 +86,11 @@ func (results Results) view(styles Styles, width int, height int) string {
 	sb.WriteString("\nMistakes: ")
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
+	sb.WriteString("\n")
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-14, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width-13, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func (settings Settings) view(styles Styles, width int, height int) string {

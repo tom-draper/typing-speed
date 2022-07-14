@@ -128,6 +128,10 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 		case "backspace":
 			page.correct.Pop()
 			page.cursor--
+			if page.chars[page.cursor] == "\n" {
+				page.correct.Pop()
+				page.cursor--
+			}
 		default:
 			if page.cursor >= len(page.chars)-1 {
 				return finished(page) // If finished typing all chars
@@ -139,6 +143,10 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 				page.mistakes++
 			}
 			page.cursor++
+			if page.chars[page.cursor] == "\n" {
+				page.correct.Push(true)
+				page.cursor++
+			}
 		}
 	}
 
