@@ -71,10 +71,15 @@ func InitMainMenu() MainMenu {
 }
 
 func InitSettings() Settings {
-	return Settings{
-		choices:  []string{"Option 1", "Option 2", "Option 3", "Back"},
+	settings := Settings{
+		choices:  []string{"Wikipedia", "Common words", "Capitalisation", "Punctuation", "Numbers", "Back"},
 		selected: make(map[int]struct{}),
 	}
+	settings.selected[0] = struct{}{}
+	settings.selected[2] = struct{}{}
+	settings.selected[3] = struct{}{}
+	settings.selected[4] = struct{}{}
+	return settings
 }
 
 func formatText(text string) []string {

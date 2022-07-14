@@ -102,7 +102,31 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 	// Iterate over our choices
 	for i, choice := range settings.choices {
 		var row string
-		if choice == "Back" {
+		if choice == "Wikipedia" {
+			cursor := " "
+			if settings.cursor == i {
+				cursor = style(">", styles.greener) // Cursor
+			}
+
+			colouredChoice := choice
+			_, ok := settings.selected[i]
+			if ok {
+				colouredChoice = style(choice, styles.greener)
+			}
+			row = fmt.Sprintf("%s %s\n", cursor, colouredChoice)
+		} else if choice == "Common words" {
+			cursor := " "
+			if settings.cursor == i {
+				cursor = style(">", styles.greener) // Cursor
+			}
+
+			colouredChoice := choice
+			_, ok := settings.selected[i]
+			if ok {
+				colouredChoice = style(choice, styles.greener)
+			}
+			row = fmt.Sprintf("%s %s\n\n", cursor, colouredChoice)
+		} else if choice == "Back" {
 			cursor := "\n "
 			if settings.cursor == i {
 				cursor = style("\n>", styles.greener) // Cursor
@@ -127,7 +151,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-14, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width-9, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func style(s string, style Style) string {

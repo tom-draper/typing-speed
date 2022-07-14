@@ -189,17 +189,35 @@ func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 			}
 
 		case "enter", " ":
-			_, ok := page.selected[page.cursor]
-			if ok {
-				delete(page.selected, page.cursor)
-			} else {
-				switch page.choices[page.cursor] {
-				case "Back":
-					return InitMainMenu() // Change to main menu page
-				default:
+			switch page.choices[page.cursor] {
+			case "Wikipedia":
+				// Turn off other options (mutually exclusive)
+				_, ok := page.selected[1]
+				if ok {
+					delete(page.selected, 1)
+				}
+				// Turn on wikipedia
+				page.selected[page.cursor] = struct{}{}
+			case "Common words":
+				// Turn off other options (mutually exclusive)
+				_, ok := page.selected[0]
+				if ok {
+					delete(page.selected, 0)
+				}
+				// Turn on common words
+				page.selected[page.cursor] = struct{}{}
+			case "Back":
+				return InitMainMenu() // Change to main menu page
+			default:
+				// Toggle option
+				_, ok := page.selected[page.cursor]
+				if ok {
+					delete(page.selected, page.cursor)
+				} else {
 					page.selected[page.cursor] = struct{}{}
 				}
 			}
+
 		}
 	}
 

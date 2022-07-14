@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -51,7 +50,6 @@ func wiki_links() []string {
 func random_link(links []string) string {
 	rand.Seed(time.Now().UnixNano())
 	n := rand.Intn(len(links))
-	fmt.Println(n, len(links))
 	link := links[n]
 	return link
 }
