@@ -130,6 +130,7 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 			if page.chars[page.cursor] == "\n" {
 				page.correct.Pop()
 				page.cursor--
+				page.cursorLine--
 			}
 		default:
 			if page.cursor >= len(page.chars)-1 {
@@ -146,6 +147,7 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 			if page.chars[page.cursor] == "\n" {
 				page.correct.Push(true)
 				page.cursor++
+				page.cursorLine++
 			}
 		}
 	}

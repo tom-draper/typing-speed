@@ -38,13 +38,28 @@ func (menu MainMenu) view(styles Styles, width int, height int) string {
 	return lipgloss.Place(width-10, height, lipgloss.Center, lipgloss.Center, s)
 }
 
+func endingIdx(chars []string, cursor int, newlines int) int {
+	for i := cursor; i < len(chars); i++ {
+		if chars[i] == "\n" {
+			newlines--
+		}
+		if newlines == 0 {
+			return i
+		}
+	}
+	return len(chars)
+}
+
 func (typing Typing) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	time := style(fmt.Sprintf("%ds\n\n", typing.time.remaining), styles.faintGreen)
+	time := style(fmt.Sprintf("%ds", typing.time.remaining), styles.faintGreen)
 	sb.WriteString(time)
+	sb.WriteString("\n")
+	// Ensure full width is used by a line taken to anchor centering
+	sb.WriteString(strings.Repeat("", width))
+	sb.WriteString("\n")
 
-	// Entered words
 	var entered strings.Builder
 	for i := 0; i < typing.correct.Length(); i++ {
 		if typing.correct.AtIndex(i) {
@@ -60,7 +75,12 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 		cursor := style(typing.chars[typing.cursor], styles.cursor)
 		sb.WriteString(cursor)
 		// To enter
-		toEnter := style(strings.Join(typing.chars[typing.cursor+1:], ""), styles.toEnter)
+		newlines := 3
+		if typing.cursorLine < 2 {
+			newlines = 4
+		}
+		endingIdx := endingIdx(typing.chars, typing.cursor, newlines)
+		toEnter := style(strings.Join(typing.chars[typing.cursor+1:endingIdx], ""), styles.toEnter)
 		sb.WriteString(toEnter)
 	}
 

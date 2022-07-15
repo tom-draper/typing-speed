@@ -103,10 +103,7 @@ func formatText(text string) []string {
 	return chars
 }
 
-func InitTyping(config map[int]struct{}) Typing {
-	width := 50
-	text := wiki_words()
-
+func applyConfigFilters(text string, config map[int]struct{}) string {
 	var ok bool
 	_, ok = config[2]
 	if !ok {
@@ -125,14 +122,23 @@ func InitTyping(config map[int]struct{}) Typing {
 		re := regexp.MustCompile(`[0-9]`)
 		text = re.ReplaceAllString(text, "")
 	}
+	return text
+}
+
+func InitTyping(config map[int]struct{}) Typing {
+	width := 50
+	text := wiki_words()
+
+	text = applyConfigFilters(text, config)
 
 	return Typing{
-		chars:     formatText(text),
-		correct:   NewCorrect(),
-		width:     width,
-		started:   false,
-		nMistakes: 0,
-		nCorrect:  0,
+		chars:      formatText(text),
+		correct:    NewCorrect(),
+		width:      width,
+		started:    false,
+		cursorLine: 0,
+		nMistakes:  0,
+		nCorrect:   0,
 		time: &Time{
 			lastUpdated: time.Now(),
 			limit:       30,
