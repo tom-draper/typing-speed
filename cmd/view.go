@@ -16,16 +16,9 @@ func (menu MainMenu) view(styles Styles, width int, height int) string {
 
 	title := style("Main Menu\n\n", styles.faintGreen)
 	sb.WriteString(title)
-	// Send to the UI for rendering
+
 	for i, choice := range menu.choices {
-
-		// Is the cursor pointing at this choice?
-		cursor := " " // no cursor
-		if menu.cursor == i {
-			cursor = style(">", styles.greener) // cursor!
-		}
-
-		// Render the row
+		cursor := formatCursor(menu.cursor, i, styles)
 		row := fmt.Sprintf("%s %s\n", cursor, choice)
 		sb.WriteString(row)
 	}
@@ -50,11 +43,15 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 
 	charsProcessed := 0
 	for i := 0; i < len(typing.lines); i++ {
-		if i > typing.cursorLine+4 {
-			break
+		if distantPastLine(i, typing.cursorLine) {
+			break // Skip printing lines to enter far away from current line
 		}
+		// Insert char-by-char from current line
 		for j := 0; j < len(typing.lines[i]); j++ {
-			if i < typing.cursorLine || (i == typing.cursorLine && j < typing.cursor) {
+			if distantFutureLine(i, typing.cursorLine) {
+				charsProcessed += len(typing.lines[i])
+				break // Skip printing entered lines more then 2 away from current line
+			} else if i < typing.cursorLine || (i == typing.cursorLine && j < typing.cursor) {
 				// Entered chars
 				entered := style(string(typing.lines[i][j]), styles.correct)
 				if !typing.correct.AtIndex(charsProcessed) {
@@ -62,44 +59,32 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 				}
 				sb.WriteString(entered)
 			} else if j == typing.cursor && i == typing.cursorLine {
+				// Cursor
 				cursor := style(string(typing.lines[i][j]), styles.cursor)
 				sb.WriteString(cursor)
 			} else {
+				// Chars to enter
 				toEnter := style(string(typing.lines[i][j]), styles.toEnter)
 				sb.WriteString(toEnter)
 			}
 			charsProcessed++
+			if j == len(typing.lines[i])-1 {
+				sb.WriteString("\n")
+			}
 		}
-		sb.WriteString("\n")
 	}
-
-	// var entered strings.Builder
-	// for i := 0; i < typing.correct.Length(); i++ {
-	// 	if typing.correct.AtIndex(i) {
-	// 		entered.WriteString(style(typing.lines[i], styles.correct))
-	// 	} else {
-	// 		entered.WriteString(style(typing.lines[i], styles.mistakes))
-	// 	}
-	// }
-	// sb.WriteString(entered.String())
-
-	// if typing.cursor < len(typing.lines) {
-	// 	// Cursor
-	// 	cursor := style(typing.lines[typing.cursor], styles.cursor)
-	// 	sb.WriteString(cursor)
-	// 	// To enter
-	// 	newlines := 3
-	// 	if typing.cursorLine < 2 {
-	// 		newlines = 4
-	// 	}
-	// 	endingIdx := endingIdx(typing.lines, typing.cursor, newlines)
-	// 	toEnter := style(strings.Join(typing.lines[typing.cursor+1:endingIdx], ""), styles.toEnter)
-	// 	sb.WriteString(toEnter)
-	// }
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
 	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, s)
+}
+
+func distantPastLine(line int, cursorLine int) bool {
+	return (cursorLine == 0 && line > cursorLine+3) || (cursorLine > 0 && line > cursorLine+2)
+}
+
+func distantFutureLine(line int, cursorLine int) bool {
+	return line < cursorLine-1
 }
 
 func (results Results) view(styles Styles, width int, height int) string {
@@ -136,10 +121,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 	for i, choice := range settings.choices {
 		var row string
 		if choice == "Wikipedia" {
-			cursor := " "
-			if settings.cursor == i {
-				cursor = style(">", styles.greener) // Cursor
-			}
+			cursor := formatCursor(settings.cursor, i, styles)
 
 			colouredChoice := choice
 			_, ok := settings.selected[i]
@@ -148,10 +130,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 			}
 			row = fmt.Sprintf("%s %s\n", cursor, colouredChoice)
 		} else if choice == "Common words" {
-			cursor := " "
-			if settings.cursor == i {
-				cursor = style(">", styles.greener) // Cursor
-			}
+			cursor := formatCursor(settings.cursor, i, styles)
 
 			colouredChoice := choice
 			_, ok := settings.selected[i]
@@ -160,16 +139,10 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 			}
 			row = fmt.Sprintf("%s %s\n\n", cursor, colouredChoice)
 		} else if choice == "Back" {
-			cursor := "\n "
-			if settings.cursor == i {
-				cursor = style("\n>", styles.greener) // Cursor
-			}
-			row = fmt.Sprintf("%s %s\n", cursor, choice)
+			cursor := formatCursor(settings.cursor, i, styles)
+			row = fmt.Sprintf("\n%s %s\n", cursor, choice)
 		} else {
-			cursor := " "
-			if settings.cursor == i {
-				cursor = ">" // Cursor
-			}
+			cursor := formatCursor(settings.cursor, i, styles)
 
 			checked := " "
 			if _, ok := settings.selected[i]; ok {
@@ -185,6 +158,14 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
 	return lipgloss.Place(width-9, height, lipgloss.Center, lipgloss.Center, s)
+}
+
+func formatCursor(cursor int, current int, styles Styles) string {
+	cursorStr := " " // No cursor
+	if cursor == current {
+		cursorStr = style(">", styles.greener) // Cursor
+	}
+	return cursorStr
 }
 
 func style(s string, style Style) string {

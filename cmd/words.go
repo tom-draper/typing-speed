@@ -74,24 +74,36 @@ func html_doc(url string) *goquery.Document {
 	return doc
 }
 
+func cleanParagraph(paragraph string) string {
+	b_re := regexp.MustCompile(`\[[^\]]*\]`)
+	p_re := regexp.MustCompile(`\([^\)]*\)`)
+	nl_re := regexp.MustCompile(`\n`)
+	ws_re := regexp.MustCompile(`\s{2,}`)
+	// Remove references
+	paragraph = b_re.ReplaceAllString(paragraph, "")
+	// Remove text within parenthesis
+	paragraph = p_re.ReplaceAllString(paragraph, "")
+	// Remove newlines wordwrap will insert these
+	paragraph = nl_re.ReplaceAllString(paragraph, "")
+	// Remove any double+ spaces created by removals
+	paragraph = ws_re.ReplaceAllString(paragraph, " ")
+	// Trim spaces at before and end of paragraph
+	paragraph = strings.TrimSpace(paragraph)
+	return paragraph
+}
+
 func extract_paragraphs(doc *goquery.Document) string {
 	// Find the review items
 	var text strings.Builder
-
-	b_re := regexp.MustCompile(`\s?\[[^\]]*\]`)
-	p_re := regexp.MustCompile(`\s?\([^\)]*\)`)
-	nl_re := regexp.MustCompile(`\n`)
 
 	max_words := 300
 	n_words := 0
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
 		paragraph := s.Text()
+		// Check for empty paragraph tags
 		isPar, _ := regexp.Match(`[A-Za-z]`, []byte(paragraph))
 		if isPar && n_words < max_words {
-			paragraph = b_re.ReplaceAllString(paragraph, "")
-			paragraph = p_re.ReplaceAllString(paragraph, "")
-			paragraph = nl_re.ReplaceAllString(paragraph, "")
-			paragraph = strings.TrimSpace(paragraph)
+			paragraph = cleanParagraph(paragraph)
 			words := strings.Split(paragraph, " ")
 			for i := range words {
 				text.WriteString(words[i])
