@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"regexp"
 	"strings"
 	"time"
 
@@ -105,6 +106,26 @@ func formatText(text string) []string {
 func InitTyping(config map[int]struct{}) Typing {
 	width := 50
 	text := wiki_words()
+
+	var ok bool
+	_, ok = config[2]
+	if !ok {
+		// Remove capitalisation
+		text = strings.ToLower(text)
+	}
+	_, ok = config[3]
+	if !ok {
+		// Remove punctuation
+		re := regexp.MustCompile("[!-/:-@[-`{-~.,?<>']")
+		text = re.ReplaceAllString(text, "")
+	}
+	_, ok = config[4]
+	if !ok {
+		// Remove numbers
+		re := regexp.MustCompile(`[0-9]`)
+		text = re.ReplaceAllString(text, "")
+	}
+
 	return Typing{
 		chars:     formatText(text),
 		correct:   NewCorrect(),

@@ -110,7 +110,6 @@ func correct_wpm(chars []string, correct *Correct, time int) float32 {
 
 	minutes := float32(time) / 60.0
 	return float32(correct_words) / minutes
-
 }
 
 func finished(page Typing) Results {
