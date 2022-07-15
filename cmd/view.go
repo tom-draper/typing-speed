@@ -14,7 +14,7 @@ func (m model) View() string {
 func (menu MainMenu) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("Main Menu\n\n", styles.faintGreen)
+	title := style("  Main Menu\n\n", styles.faintGreen)
 	sb.WriteString(title)
 
 	for i, choice := range menu.choices {
@@ -23,12 +23,12 @@ func (menu MainMenu) view(styles Styles, width int, height int) string {
 		sb.WriteString(row)
 	}
 
-	exit_instr := style("\nPress Esc to exit.\n", styles.toEnter)
+	exit_instr := style("\n  Press Esc to exit.\n", styles.toEnter)
 	sb.WriteString(exit_instr)
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-10, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width-9, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func (typing Typing) view(styles Styles, width int, height int) string {
@@ -90,7 +90,7 @@ func distantFutureLine(line int, cursorLine int) bool {
 func (results Results) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("Result\n", styles.faintGreen)
+	title := style("Results\n", styles.faintGreen)
 	sb.WriteString(title)
 
 	sb.WriteString("\nWPM: ")
@@ -104,17 +104,21 @@ func (results Results) view(styles Styles, width int, height int) string {
 	sb.WriteString("\nMistakes: ")
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
+
 	sb.WriteString("\n")
+
+	restart := style("\n  Press r to restart.", styles.toEnter)
+	sb.WriteString(restart)
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-13, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width-12, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func (settings Settings) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("Settings\n\n", styles.faintGreen)
+	title := style("  Settings\n\n", styles.faintGreen)
 	sb.WriteString(title)
 
 	// Iterate over our choices
@@ -122,33 +126,18 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 		var row string
 		if choice == "Wikipedia" {
 			cursor := formatCursor(settings.cursor, i, styles)
-
-			colouredChoice := choice
-			_, ok := settings.selected[i]
-			if ok {
-				colouredChoice = style(choice, styles.greener)
-			}
+			colouredChoice := formatColouredChoice(choice, settings.selected, i, styles)
 			row = fmt.Sprintf("%s %s\n", cursor, colouredChoice)
 		} else if choice == "Common words" {
 			cursor := formatCursor(settings.cursor, i, styles)
-
-			colouredChoice := choice
-			_, ok := settings.selected[i]
-			if ok {
-				colouredChoice = style(choice, styles.greener)
-			}
+			colouredChoice := formatColouredChoice(choice, settings.selected, i, styles)
 			row = fmt.Sprintf("%s %s\n\n", cursor, colouredChoice)
 		} else if choice == "Back" {
 			cursor := formatCursor(settings.cursor, i, styles)
 			row = fmt.Sprintf("\n%s %s\n", cursor, choice)
 		} else {
 			cursor := formatCursor(settings.cursor, i, styles)
-
-			checked := " "
-			if _, ok := settings.selected[i]; ok {
-				checked = "x" // Choice selected
-			}
-			// Render the row
+			checked := formatChecked(settings.selected, i)
 			row = fmt.Sprintf("%s [%s] %s\n", style(cursor, styles.greener), checked, choice)
 		}
 		sb.WriteString(row)
@@ -157,7 +146,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-9, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width-8, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func formatCursor(cursor int, current int, styles Styles) string {
@@ -166,6 +155,22 @@ func formatCursor(cursor int, current int, styles Styles) string {
 		cursorStr = style(">", styles.greener) // Cursor
 	}
 	return cursorStr
+}
+
+func formatChecked(selected map[int]struct{}, idx int) string {
+	checked := " "
+	if _, ok := selected[idx]; ok {
+		checked = "x" // Choice selected
+	}
+	return checked
+}
+
+func formatColouredChoice(choice string, selected map[int]struct{}, idx int, styles Styles) string {
+	colouredChoice := choice
+	if _, ok := selected[idx]; ok {
+		colouredChoice = style(choice, styles.greener)
+	}
+	return colouredChoice
 }
 
 func style(s string, style Style) string {
