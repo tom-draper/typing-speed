@@ -98,9 +98,9 @@ func formatText(text string) []string {
 
 	text = strings.ReplaceAll(ww.String(), "|", " ")
 
-	chars := strings.Split(text, "")
+	lines := strings.Split(text, "\n")
 
-	return chars
+	return lines
 }
 
 func applyConfigFilters(text string, config map[int]struct{}) string {
@@ -132,7 +132,7 @@ func InitTyping(config map[int]struct{}) Typing {
 	text = applyConfigFilters(text, config)
 
 	return Typing{
-		chars:      formatText(text),
+		lines:      formatText(text),
 		correct:    NewCorrect(),
 		width:      width,
 		started:    false,

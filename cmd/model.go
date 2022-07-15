@@ -25,7 +25,7 @@ type Time struct {
 }
 
 type Typing struct {
-	chars      []string
+	lines      []string
 	correct    *Correct
 	width      int
 	started    bool

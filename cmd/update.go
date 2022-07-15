@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -90,20 +91,28 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]stru
 	return page
 }
 
-func correct_wpm(chars []string, correct *Correct, time int) float32 {
+func correct_wpm(lines []string, correct *Correct, time int) float32 {
+	char := 0
 	correct_words := 0
 	correct_word := true
-	for i := 0; i < correct.Length(); i++ {
-		if !correct.AtIndex(i) {
-			// If a letter in current word is incorect, set flag
-			correct_word = false
-		} else if chars[i] == " " && correct_word {
-			correct_words++
-		} else {
-			correct_word = true
+	for i := 0; i < len(lines); i++ {
+		for j := 0; j < len(lines[i]); j++ {
+			if char >= correct.Length() {
+				break // Reached the last character entered
+			} else if !correct.AtIndex(char) {
+				// If a letter in current word is incorect, set flag
+				correct_word = false
+			} else if lines[i][j] == ' ' { // Finished a word
+				if correct_word || j == len(lines[i])-1 {
+					correct_words++
+				} else {
+					correct_word = true // Reset flag
+				}
+			}
+			char++
 		}
 	}
-	if correct.Length() == len(chars) && correct_word {
+	if correct.Length() == char && correct_word {
 		// If made it to the final character, register the final word
 		correct_words++
 	}
@@ -113,7 +122,7 @@ func correct_wpm(chars []string, correct *Correct, time int) float32 {
 }
 
 func finished(page Typing) Results {
-	wpm := correct_wpm(page.chars, page.correct, page.time.limit-page.time.remaining)
+	wpm := correct_wpm(page.lines, page.correct, page.time.limit-page.time.remaining)
 	accuracy := (float32(page.nCorrect) / (float32(page.nCorrect) + float32(page.nMistakes))) * 100.0
 	return InitResults(wpm, accuracy, page.nMistakes)
 }
@@ -125,28 +134,32 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 		case "ctrl+c", "esc":
 			return InitMainMenu()
 		case "backspace":
-			page.correct.Pop()
-			page.cursor--
-			if page.chars[page.cursor] == "\n" {
+			if page.cursor == 0 {
+				if page.cursorLine > 0 {
+					page.cursorLine--
+					page.cursor = len(page.lines[page.cursorLine])
+				}
+			} else {
 				page.correct.Pop()
 				page.cursor--
-				page.cursorLine--
 			}
 		default:
-			if page.cursor >= len(page.chars)-1 {
+			if page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1 {
 				return finished(page) // If finished typing all chars
 			}
-			if msg.String() == string(page.chars[page.cursor]) {
+			if msg.String() == string(page.lines[page.cursorLine][page.cursor]) {
 				page.correct.Push(true)
+				fmt.Print(page.correct.Length())
 				page.nCorrect++
 			} else {
 				page.correct.Push(false)
 				page.nMistakes++
+				fmt.Print(page.correct.Length())
 			}
 			page.cursor++
-			if page.chars[page.cursor] == "\n" {
-				page.correct.Push(true)
-				page.cursor++
+			if page.cursor >= len(page.lines[page.cursorLine]) {
+				// Move to next line
+				page.cursor = 0
 				page.cursorLine++
 			}
 		}

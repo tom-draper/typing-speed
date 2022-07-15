@@ -38,18 +38,6 @@ func (menu MainMenu) view(styles Styles, width int, height int) string {
 	return lipgloss.Place(width-10, height, lipgloss.Center, lipgloss.Center, s)
 }
 
-func endingIdx(chars []string, cursor int, newlines int) int {
-	for i := cursor; i < len(chars); i++ {
-		if chars[i] == "\n" {
-			newlines--
-		}
-		if newlines == 0 {
-			return i
-		}
-	}
-	return len(chars)
-}
-
 func (typing Typing) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
@@ -60,29 +48,54 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 	sb.WriteString(strings.Repeat("", width))
 	sb.WriteString("\n")
 
-	var entered strings.Builder
-	for i := 0; i < typing.correct.Length(); i++ {
-		if typing.correct.AtIndex(i) {
-			entered.WriteString(style(typing.chars[i], styles.correct))
-		} else {
-			entered.WriteString(style(typing.chars[i], styles.mistakes))
+	charsProcessed := 0
+	for i := 0; i < len(typing.lines); i++ {
+		if i > typing.cursorLine+4 {
+			break
 		}
+		for j := 0; j < len(typing.lines[i]); j++ {
+			if i < typing.cursorLine || (i == typing.cursorLine && j < typing.cursor) {
+				// Entered chars
+				entered := style(string(typing.lines[i][j]), styles.correct)
+				if !typing.correct.AtIndex(charsProcessed) {
+					entered = style(string(typing.lines[i][j]), styles.mistakes)
+				}
+				sb.WriteString(entered)
+			} else if j == typing.cursor && i == typing.cursorLine {
+				cursor := style(string(typing.lines[i][j]), styles.cursor)
+				sb.WriteString(cursor)
+			} else {
+				toEnter := style(string(typing.lines[i][j]), styles.toEnter)
+				sb.WriteString(toEnter)
+			}
+			charsProcessed++
+		}
+		sb.WriteString("\n")
 	}
-	sb.WriteString(entered.String())
 
-	if typing.cursor < len(typing.chars) {
-		// Cursor
-		cursor := style(typing.chars[typing.cursor], styles.cursor)
-		sb.WriteString(cursor)
-		// To enter
-		newlines := 3
-		if typing.cursorLine < 2 {
-			newlines = 4
-		}
-		endingIdx := endingIdx(typing.chars, typing.cursor, newlines)
-		toEnter := style(strings.Join(typing.chars[typing.cursor+1:endingIdx], ""), styles.toEnter)
-		sb.WriteString(toEnter)
-	}
+	// var entered strings.Builder
+	// for i := 0; i < typing.correct.Length(); i++ {
+	// 	if typing.correct.AtIndex(i) {
+	// 		entered.WriteString(style(typing.lines[i], styles.correct))
+	// 	} else {
+	// 		entered.WriteString(style(typing.lines[i], styles.mistakes))
+	// 	}
+	// }
+	// sb.WriteString(entered.String())
+
+	// if typing.cursor < len(typing.lines) {
+	// 	// Cursor
+	// 	cursor := style(typing.lines[typing.cursor], styles.cursor)
+	// 	sb.WriteString(cursor)
+	// 	// To enter
+	// 	newlines := 3
+	// 	if typing.cursorLine < 2 {
+	// 		newlines = 4
+	// 	}
+	// 	endingIdx := endingIdx(typing.lines, typing.cursor, newlines)
+	// 	toEnter := style(strings.Join(typing.lines[typing.cursor+1:endingIdx], ""), styles.toEnter)
+	// 	sb.WriteString(toEnter)
+	// }
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
