@@ -24,6 +24,13 @@ func InitialModel() model {
 	foreground := termenv.ForegroundColor()
 	w, h := terminalDimensions()
 
+	// Corresponds to options in Settings page
+	config := make(map[int]struct{})
+	config[0] = struct{}{} // Wikipedia
+	config[2] = struct{}{} // Capitalisation
+	config[3] = struct{}{} // Punctuation
+	config[4] = struct{}{} // Numbers
+
 	return model{
 		page:   InitMainMenu(),
 		width:  w,
@@ -54,6 +61,7 @@ func InitialModel() model {
 				return termenv.String(str).Foreground(profile.Color("10")).Faint()
 			},
 		},
+		config: config,
 	}
 }
 
@@ -70,15 +78,11 @@ func InitMainMenu() MainMenu {
 	}
 }
 
-func InitSettings() Settings {
+func InitSettings(config map[int]struct{}) Settings {
 	settings := Settings{
 		choices:  []string{"Wikipedia", "Common words", "Capitalisation", "Punctuation", "Numbers", "Back"},
-		selected: make(map[int]struct{}),
+		selected: config,
 	}
-	settings.selected[0] = struct{}{}
-	settings.selected[2] = struct{}{}
-	settings.selected[3] = struct{}{}
-	settings.selected[4] = struct{}{}
 	return settings
 }
 
@@ -98,15 +102,16 @@ func formatText(text string) []string {
 	return chars
 }
 
-func InitTyping() Typing {
+func InitTyping(config map[int]struct{}) Typing {
 	width := 50
 	text := wiki_words()
 	return Typing{
-		chars:    formatText(text),
-		correct:  NewCorrect(),
-		width:    width,
-		started:  false,
-		mistakes: 0,
+		chars:     formatText(text),
+		correct:   NewCorrect(),
+		width:     width,
+		started:   false,
+		nMistakes: 0,
+		nCorrect:  0,
 		time: &Time{
 			lastUpdated: time.Now(),
 			limit:       30,

@@ -51,7 +51,7 @@ func (c *Correct) Length() int {
 	return len(c.stack)
 }
 
-func (c *Correct) Accuracy() float32 {
+func (c *Correct) FinalAccuracy() float32 {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	correct := 0
@@ -60,5 +60,5 @@ func (c *Correct) Accuracy() float32 {
 			correct++
 		}
 	}
-	return float32(correct) / float32(len(c.stack))
+	return float32(correct) / float32(len(c.stack)) * 100
 }

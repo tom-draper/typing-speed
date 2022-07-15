@@ -25,13 +25,14 @@ type Time struct {
 }
 
 type Typing struct {
-	chars    []string
-	correct  *Correct
-	width    int
-	started  bool
-	mistakes int
-	cursor   int
-	time     *Time
+	chars     []string
+	correct   *Correct
+	width     int
+	started   bool
+	nMistakes int
+	nCorrect  int
+	cursor    int
+	time      *Time
 }
 
 type Results struct {
@@ -62,4 +63,5 @@ type model struct {
 	styles Styles
 	width  int
 	height int
+	config map[int]struct{}
 }

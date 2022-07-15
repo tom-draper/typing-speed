@@ -39,22 +39,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		}
-		m.page = page.handleInput(msg, page)
+		m.page = page.handleInput(msg, page, m.config)
 	case Typing:
 		firstLetter := !page.started
-		m.page = page.handleInput(msg, page)
+		m.page = page.handleInput(msg, page, m.config)
 		if firstLetter {
 			return m, tickEvery() // Start timer once first key pressed
 		}
 	case Results:
-		m.page = page.handleInput(msg, page)
+		m.page = page.handleInput(msg, page, m.config)
 	case Settings:
 		m.page = page.handleInput(msg, page)
 	}
 	return m, nil
 }
 
-func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
+func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]struct{}) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -77,9 +77,9 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu) Page {
 				switch page.choices[page.cursor] {
 				// Navigate to a new page
 				case "Start":
-					return InitTyping()
+					return InitTyping(config)
 				case "Settings":
-					return InitSettings()
+					return InitSettings(config)
 				default:
 					page.selected[page.cursor] = struct{}{}
 				}
@@ -115,11 +115,11 @@ func correct_wpm(chars []string, correct *Correct, time int) float32 {
 
 func finished(page Typing) Results {
 	wpm := correct_wpm(page.chars, page.correct, page.time.limit-page.time.remaining)
-	accuracy := page.correct.Accuracy()
-	return InitResults(wpm, accuracy, page.mistakes)
+	accuracy := (float32(page.nCorrect) / (float32(page.nCorrect) + float32(page.nMistakes))) * 100.0
+	return InitResults(wpm, accuracy, page.nMistakes)
 }
 
-func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
+func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct{}) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -138,9 +138,10 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 			}
 			if msg.String() == string(page.chars[page.cursor]) {
 				page.correct.Push(true)
+				page.nCorrect++
 			} else {
 				page.correct.Push(false)
-				page.mistakes++
+				page.nMistakes++
 			}
 			page.cursor++
 			if page.chars[page.cursor] == "\n" {
@@ -157,12 +158,12 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing) Page {
 	return page
 }
 
-func (results Results) handleInput(msg tea.Msg, page Results) Page {
+func (results Results) handleInput(msg tea.Msg, page Results, config map[int]struct{}) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+r", "r":
-			return InitTyping()
+			return InitTyping(config)
 		case "ctrl+c", "esc", "enter":
 			return InitMainMenu()
 		}
@@ -196,16 +197,14 @@ func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 				if ok {
 					delete(page.selected, 1)
 				}
-				// Turn on wikipedia
-				page.selected[page.cursor] = struct{}{}
+				page.selected[page.cursor] = struct{}{} // Turn on wikipedia
 			case "Common words":
 				// Turn off other options (mutually exclusive)
 				_, ok := page.selected[0]
 				if ok {
 					delete(page.selected, 0)
 				}
-				// Turn on common words
-				page.selected[page.cursor] = struct{}{}
+				page.selected[page.cursor] = struct{}{} // Turn on common words
 			case "Back":
 				return InitMainMenu() // Change to main menu page
 			default:
