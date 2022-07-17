@@ -208,17 +208,28 @@ func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 		case "enter", " ":
 			switch page.choices[page.cursor] {
 			case "Wikipedia":
-				// Turn off other options (mutually exclusive)
-				if _, ok := page.selected[1]; ok {
-					delete(page.selected, 1)
-				}
+				// Turn off other word collections
+				delete(page.selected, 1)
 				page.selected[page.cursor] = struct{}{} // Turn on wikipedia
 			case "Common words":
-				// Turn off other options (mutually exclusive)
-				if _, ok := page.selected[0]; ok {
-					delete(page.selected, 0)
-				}
+				// Turn off other word collections
+				delete(page.selected, 0)
 				page.selected[page.cursor] = struct{}{} // Turn on common words
+			case "30s":
+				// Turn off 60s and 120s
+				delete(page.selected, 3)
+				delete(page.selected, 4)
+				page.selected[page.cursor] = struct{}{}
+			case "60s":
+				// Turn off 60s and 120s
+				delete(page.selected, 2)
+				delete(page.selected, 4)
+				page.selected[page.cursor] = struct{}{}
+			case "120s":
+				// Turn off 60s and 120s
+				delete(page.selected, 2)
+				delete(page.selected, 3)
+				page.selected[page.cursor] = struct{}{}
 			case "Back":
 				return InitMainMenu() // Change to main menu page
 			default:

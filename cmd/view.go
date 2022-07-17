@@ -132,6 +132,18 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 			cursor := formatCursor(settings.cursor, i, styles)
 			colouredChoice := formatColouredChoice(choice, settings.selected, i, styles)
 			row = fmt.Sprintf("%s %s\n\n", cursor, colouredChoice)
+		} else if choice == "30s" {
+			cursor := formatCursor(settings.cursor, i, styles)
+			colouredChoice := formatColouredChoice(choice, settings.selected, i, styles)
+			row = fmt.Sprintf("  Time:  %s %s", cursor, colouredChoice)
+		} else if choice == "60s" {
+			cursor := formatCursor(settings.cursor, i, styles)
+			colouredChoice := formatColouredChoice(choice, settings.selected, i, styles)
+			row = fmt.Sprintf("  %s %s", cursor, colouredChoice)
+		} else if choice == "120s" {
+			cursor := formatCursor(settings.cursor, i, styles)
+			colouredChoice := formatColouredChoice(choice, settings.selected, i, styles)
+			row = fmt.Sprintf("  %s %s\n\n", cursor, colouredChoice)
 		} else if choice == "Back" {
 			cursor := formatCursor(settings.cursor, i, styles)
 			row = fmt.Sprintf("\n%s %s\n", cursor, choice)

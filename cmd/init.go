@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 	"time"
@@ -28,9 +29,10 @@ func InitialModel() model {
 	// Enable default settings - corresponds to options in Settings page
 	config := make(map[int]struct{})
 	config[0] = struct{}{} // Wikipedia
-	config[2] = struct{}{} // Capitalisation
-	config[3] = struct{}{} // Punctuation
-	config[4] = struct{}{} // Numbers
+	config[2] = struct{}{} // 30s timer
+	config[5] = struct{}{} // Capitalisation
+	config[6] = struct{}{} // Punctuation
+	config[7] = struct{}{} // Numbers
 
 	return model{
 		page:   InitMainMenu(),
@@ -81,7 +83,7 @@ func InitMainMenu() MainMenu {
 
 func InitSettings(config map[int]struct{}) Settings {
 	return Settings{
-		choices:  []string{"Wikipedia", "Common words", "Capitalisation", "Punctuation", "Numbers", "Back"},
+		choices:  []string{"Wikipedia", "Common words", "30s", "60s", "120s", "Capitalisation", "Punctuation", "Numbers", "Back"},
 		selected: config,
 	}
 }
@@ -104,16 +106,16 @@ func formatText(text string) []string {
 
 func applyConfigFilters(text string, config map[int]struct{}) string {
 	// Remove capitalisation
-	if _, ok := config[2]; !ok {
+	if _, ok := config[5]; !ok {
 		text = strings.ToLower(text)
 	}
 	// Remove punctuation
-	if _, ok := config[3]; !ok {
+	if _, ok := config[6]; !ok {
 		re := regexp.MustCompile("[!-/:-@[-`{-~.,?<>']")
 		text = re.ReplaceAllString(text, "")
 	}
 	// Remove numbers
-	if _, ok := config[4]; !ok {
+	if _, ok := config[7]; !ok {
 		re := regexp.MustCompile(`[0-9]`)
 		text = re.ReplaceAllString(text, "")
 	}
@@ -132,9 +134,24 @@ func typingText(config map[int]struct{}) string {
 	return text
 }
 
+func timeLimit(config map[int]struct{}) (int, error) {
+	if _, ok := config[2]; ok {
+		return 30, nil
+	} else if _, ok := config[3]; ok {
+		return 60, nil
+	} else if _, ok := config[4]; ok {
+		return 120, nil
+	}
+	return 0, errors.New("error: no time limit config selected")
+}
+
 func InitTyping(config map[int]struct{}) Typing {
 	width := 50
 	text := typingText(config)
+	limit, err := timeLimit(config)
+	if err != nil {
+		panic(err)
+	}
 	return Typing{
 		lines:      formatText(text),
 		correct:    NewCorrect(),
@@ -145,8 +162,8 @@ func InitTyping(config map[int]struct{}) Typing {
 		nCorrect:   0,
 		time: &Time{
 			lastUpdated: time.Now(),
-			limit:       30,
-			remaining:   30,
+			limit:       limit,
+			remaining:   limit,
 		},
 	}
 }
