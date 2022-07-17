@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"bufio"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -135,6 +137,36 @@ func wiki_words() string {
 	return text
 }
 
+func read_words_file(path string) [1000]string {
+	// Open the file.
+	f, _ := os.Open(path)
+	// Create a new Scanner for the file.
+	scanner := bufio.NewScanner(f)
+	// Loop over all lines in the file and print them.
+	var words [1000]string
+	for i := 0; i < 1000; i++ {
+		if scanner.Scan() {
+			line := scanner.Text()
+			words[i] = line
+		}
+	}
+
+	return words
+}
+
+func shuffle_words(words [1000]string) [1000]string {
+	loc_map := rand.Perm(len(words)) // Get a new location for each word
+
+	var shuffled_words [1000]string
+	for i, loc := range loc_map {
+		shuffled_words[loc] = words[i]
+	}
+	return shuffled_words
+}
+
 func common_words() string {
-	return ""
+	words := read_words_file("words/common_words.txt")
+	words = shuffle_words(words)
+	text := strings.Join(words[:], " ")
+	return text
 }
