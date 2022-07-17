@@ -107,7 +107,7 @@ func (results Results) view(styles Styles, width int, height int) string {
 
 	sb.WriteString("\n")
 
-	restart := style("\n  Press r to restart.", styles.toEnter)
+	restart := style("\nPress r to restart.", styles.toEnter)
 	sb.WriteString(restart)
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -30,11 +29,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			page.time.remaining--
 			if page.time.remaining < 1 {
 				m.page = finished(page)
-				return m, nil
+				return m, nil // Timer finished - stop tick events
 			}
 			return m, tickEvery()
 		}
-		return m, nil
+		return m, nil // No longer on timer page - stop tick events
 	}
 
 	switch page := m.page.(type) {
@@ -81,11 +80,10 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]stru
 				delete(page.selected, page.cursor)
 			} else {
 				switch page.choices[page.cursor] {
-				// Navigate to a new page
 				case "Start":
-					return InitTyping(config)
+					return InitTyping(config) // Navigate to Typing page
 				case "Settings":
-					return InitSettings(config)
+					return InitSettings(config) // Navigate to Settings page
 				default:
 					page.selected[page.cursor] = struct{}{}
 				}
@@ -117,8 +115,8 @@ func correct_wpm(lines []string, correct *Correct, time int) float32 {
 			char++
 		}
 	}
+	// If made it to the final character, register the final word
 	if correct.Length() == char && correct_word {
-		// If made it to the final character, register the final word
 		correct_words++
 	}
 
@@ -139,31 +137,30 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 		case "ctrl+c", "esc":
 			return InitMainMenu()
 		case "backspace":
-			if page.cursor == 0 {
-				if page.cursorLine > 0 {
-					page.cursorLine--
-					page.cursor = len(page.lines[page.cursorLine])
-				}
+			// If on the first char of a line
+			if page.cursor == 0 && page.cursorLine > 0 {
+				page.cursorLine--
+				page.cursor = len(page.lines[page.cursorLine])
 			} else {
 				page.correct.Pop()
 				page.cursor--
 			}
 		default:
+			// Check if typed last char
 			if page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1 {
-				return finished(page) // If finished typing all chars
+				return finished(page)
 			}
+			// Check whether input char correct
 			if msg.String() == string(page.lines[page.cursorLine][page.cursor]) {
 				page.correct.Push(true)
-				fmt.Print(page.correct.Length())
 				page.nCorrect++
 			} else {
 				page.correct.Push(false)
 				page.nMistakes++
-				fmt.Print(page.correct.Length())
 			}
 			page.cursor++
+			// Check if move to next line
 			if page.cursor >= len(page.lines[page.cursorLine]) {
-				// Move to next line
 				page.cursor = 0
 				page.cursorLine++
 			}
