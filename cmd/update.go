@@ -17,7 +17,13 @@ func tickEvery() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg.(type) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		if msg.Width != 0 && msg.Height != 0 {
+			m.width = msg.Width
+			m.height = msg.Height
+		}
+		return m, nil
 	case TickMsg:
 		switch page := m.page.(type) {
 		case Typing:
