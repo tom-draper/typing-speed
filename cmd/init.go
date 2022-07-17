@@ -25,7 +25,7 @@ func InitialModel() model {
 	foreground := termenv.ForegroundColor()
 	w, h := terminalDimensions()
 
-	// Corresponds to options in Settings page
+	// Enable default settings - corresponds to options in Settings page
 	config := make(map[int]struct{})
 	config[0] = struct{}{} // Wikipedia
 	config[2] = struct{}{} // Capitalisation
@@ -80,11 +80,10 @@ func InitMainMenu() MainMenu {
 }
 
 func InitSettings(config map[int]struct{}) Settings {
-	settings := Settings{
+	return Settings{
 		choices:  []string{"Wikipedia", "Common words", "Capitalisation", "Punctuation", "Numbers", "Back"},
 		selected: config,
 	}
-	return settings
 }
 
 func formatText(text string) []string {
@@ -104,33 +103,38 @@ func formatText(text string) []string {
 }
 
 func applyConfigFilters(text string, config map[int]struct{}) string {
-	var ok bool
-	_, ok = config[2]
-	if !ok {
-		// Remove capitalisation
+	// Remove capitalisation
+	if _, ok := config[2]; !ok {
 		text = strings.ToLower(text)
 	}
-	_, ok = config[3]
-	if !ok {
-		// Remove punctuation
+	// Remove punctuation
+	if _, ok := config[3]; !ok {
 		re := regexp.MustCompile("[!-/:-@[-`{-~.,?<>']")
 		text = re.ReplaceAllString(text, "")
 	}
-	_, ok = config[4]
-	if !ok {
-		// Remove numbers
+	// Remove numbers
+	if _, ok := config[4]; !ok {
 		re := regexp.MustCompile(`[0-9]`)
 		text = re.ReplaceAllString(text, "")
 	}
 	return text
 }
 
-func InitTyping(config map[int]struct{}) Typing {
-	width := 50
-	text := wiki_words()
+func typingText(config map[int]struct{}) string {
+	var text string
+	if _, ok := config[0]; ok {
+		text = wiki_words()
+	} else if _, ok := config[1]; ok {
+		text = common_words()
+	}
 
 	text = applyConfigFilters(text, config)
+	return text
+}
 
+func InitTyping(config map[int]struct{}) Typing {
+	width := 50
+	text := typingText(config)
 	return Typing{
 		lines:      formatText(text),
 		correct:    NewCorrect(),

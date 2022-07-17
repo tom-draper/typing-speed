@@ -134,3 +134,7 @@ func wiki_words() string {
 
 	return text
 }
+
+func common_words() string {
+	return ""
+}
