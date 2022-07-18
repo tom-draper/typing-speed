@@ -138,9 +138,11 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 			return InitMainMenu()
 		case "backspace":
 			// If on the first char of a line
-			if page.cursor == 0 && page.cursorLine > 0 {
-				page.cursorLine--
-				page.cursor = len(page.lines[page.cursorLine])
+			if page.cursor == 0 {
+				if page.cursorLine > 0 {
+					page.cursorLine--
+					page.cursor = len(page.lines[page.cursorLine])
+				}
 			} else {
 				page.correct.Pop()
 				page.cursor--

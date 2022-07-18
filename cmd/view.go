@@ -97,11 +97,11 @@ func (results Results) view(styles Styles, width int, height int) string {
 	wpm := style(fmt.Sprintf("%.2f", results.wpm), styles.greener)
 	sb.WriteString(wpm)
 
-	sb.WriteString("\nAccuracy: ")
+	sb.WriteString("    Accuracy: ")
 	accuracy := style(fmt.Sprintf("%.2f", results.accuracy)+"%", styles.greener)
 	sb.WriteString(accuracy)
 
-	sb.WriteString("\nMistakes: ")
+	sb.WriteString("    Mistakes: ")
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
 
@@ -158,7 +158,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-8, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func formatCursor(cursor int, current int, styles Styles) string {
