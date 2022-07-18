@@ -94,7 +94,7 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]stru
 	return page
 }
 
-func correct_wpm(lines []string, correct *Correct, time int) float32 {
+func correct_wpm(lines []string, correct *Correct, time int) float64 {
 	char := 0
 	correct_words := 0
 	correct_word := true
@@ -120,14 +120,24 @@ func correct_wpm(lines []string, correct *Correct, time int) float32 {
 		correct_words++
 	}
 
-	minutes := float32(time) / 60.0
-	return float32(correct_words) / minutes
+	minutes := float64(time) / 60.0
+	return float64(correct_words) / minutes
+}
+
+func words_per_min_from_sec(wps []int) []float64 {
+	wpms := make([]float64, len(wps))
+	for i := range wps {
+		// Multiply second to get minutes, and divide by average word length (5)
+		wpms[i] = float64(wps[i]) * 60 / 5
+	}
+	return wpms
 }
 
 func finished(page Typing) Results {
+	wpms := words_per_min_from_sec(page.wps)
 	wpm := correct_wpm(page.lines, page.correct, page.time.limit-page.time.remaining)
-	accuracy := (float32(page.nCorrect) / (float32(page.nCorrect) + float32(page.nMistakes))) * 100.0
-	return InitResults(wpm, accuracy, page.nMistakes)
+	accuracy := (float64(page.nCorrect) / (float64(page.nCorrect) + float64(page.nMistakes))) * 100.0
+	return InitResults(wpms, wpm, accuracy, page.nMistakes)
 }
 
 func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct{}) Page {
@@ -166,6 +176,7 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 				page.cursor = 0
 				page.cursorLine++
 			}
+			page.wps[page.time.limit-page.time.remaining]++
 		}
 	}
 

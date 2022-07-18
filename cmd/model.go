@@ -34,11 +34,13 @@ type Typing struct {
 	cursor     int
 	cursorLine int
 	time       *Time
+	wps        []int
 }
 
 type Results struct {
-	wpm      float32
-	accuracy float32
+	wpm      float64
+	wpms     []float64
+	accuracy float64
 	mistakes int
 }
 

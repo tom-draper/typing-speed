@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/guptarohit/asciigraph"
 )
 
 func (m model) View() string {
@@ -93,26 +94,40 @@ func (results Results) view(styles Styles, width int, height int) string {
 	title := style("Results\n", styles.faintGreen)
 	sb.WriteString(title)
 
+	graph := plotWpms(results.wpms, width)
+	sb.WriteString(graph)
+
 	sb.WriteString("\nWPM: ")
 	wpm := style(fmt.Sprintf("%.2f", results.wpm), styles.greener)
 	sb.WriteString(wpm)
 
-	sb.WriteString("    Accuracy: ")
+	sb.WriteString("   Accuracy: ")
 	accuracy := style(fmt.Sprintf("%.2f", results.accuracy)+"%", styles.greener)
 	sb.WriteString(accuracy)
 
-	sb.WriteString("    Mistakes: ")
+	sb.WriteString("   Mistakes: ")
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
 
-	sb.WriteString("\n")
-
-	restart := style("\nPress r to restart.", styles.toEnter)
+	restart := style("\n\nPress r to restart.", styles.toEnter)
 	sb.WriteString(restart)
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
 	return lipgloss.Place(width-12, height, lipgloss.Center, lipgloss.Center, s)
+}
+
+func plotWpms(wpms []float64, width int) string {
+	wpmGraph := asciigraph.Plot(
+		wpms,
+		asciigraph.Precision(0),
+		asciigraph.Height(6),
+		asciigraph.Width(int(float64(width)*0.4)),
+		asciigraph.CaptionColor(2),
+		asciigraph.LabelColor(2),
+	)
+
+	return lipgloss.NewStyle().Padding(1, 0, 1, 1).Render(wpmGraph)
 }
 
 func (settings Settings) view(styles Styles, width int, height int) string {
@@ -153,7 +168,6 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 			row = fmt.Sprintf("%s [%s] %s\n", style(cursor, styles.greener), checked, choice)
 		}
 		sb.WriteString(row)
-
 	}
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())

@@ -165,11 +165,13 @@ func InitTyping(config map[int]struct{}) Typing {
 			limit:       limit,
 			remaining:   limit,
 		},
+		wps: make([]int, limit),
 	}
 }
 
-func InitResults(wpm float32, accuracy float32, mistakes int) Results {
+func InitResults(wpms []float64, wpm float64, accuracy float64, mistakes int) Results {
 	return Results{
+		wpms:     wpms,
 		wpm:      wpm,
 		accuracy: accuracy,
 		mistakes: mistakes,

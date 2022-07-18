@@ -6,6 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/charmbracelet/bubbletea v0.22.0
 	github.com/charmbracelet/lipgloss v0.5.0
+	github.com/guptarohit/asciigraph v0.5.5
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.12.0
 	github.com/nsf/termbox-go v1.1.1
