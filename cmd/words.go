@@ -77,8 +77,8 @@ func html_doc(url string) *goquery.Document {
 }
 
 func cleanParagraph(paragraph string) string {
-	b_re := regexp.MustCompile(`\[[^\]]*\]`)
-	p_re := regexp.MustCompile(`\([^\)]*\)`)
+	b_re := regexp.MustCompile(`\s?\[[^\]]*\]`)
+	p_re := regexp.MustCompile(`\s?\([^\)]*\)`)
 	nl_re := regexp.MustCompile(`\n`)
 	ws_re := regexp.MustCompile(`\s{2,}`)
 	// Remove references

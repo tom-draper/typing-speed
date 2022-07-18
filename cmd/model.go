@@ -35,6 +35,7 @@ type Typing struct {
 	cursorLine int
 	time       *Time
 	wps        []int
+	words      int
 }
 
 type Results struct {

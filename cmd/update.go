@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,7 +29,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case Typing:
 			page.time.remaining--
 			if page.time.remaining < 1 {
-				m.page = finished(page)
+				m.page = show_results(page)
 				return m, nil // Timer finished - stop tick events
 			}
 			return m, tickEvery()
@@ -124,17 +125,19 @@ func correct_wpm(lines []string, correct *Correct, time int) float64 {
 	return float64(correct_words) / minutes
 }
 
-func words_per_min_from_sec(wps []int) []float64 {
+func words_per_min_from_sec(wps []int, avg_word_len float64) []float64 {
+	fmt.Println(avg_word_len)
 	wpms := make([]float64, len(wps))
 	for i := range wps {
 		// Multiply second to get minutes, and divide by average word length (5)
-		wpms[i] = float64(wps[i]) * 60 / 5
+		wpms[i] = float64(wps[i]) * 60 / avg_word_len
 	}
 	return wpms
 }
 
-func finished(page Typing) Results {
-	wpms := words_per_min_from_sec(page.wps)
+func show_results(page Typing) Results {
+	avg_word_len := float64(page.correct.Length()) / float64(page.words)
+	wpms := words_per_min_from_sec(page.wps, avg_word_len)
 	wpm := correct_wpm(page.lines, page.correct, page.time.limit-page.time.remaining)
 	accuracy := (float64(page.nCorrect) / (float64(page.nCorrect) + float64(page.nMistakes))) * 100.0
 	return InitResults(wpms, wpm, accuracy, page.nMistakes)
@@ -146,21 +149,28 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 		switch msg.String() {
 		case "ctrl+c", "esc":
 			return InitMainMenu()
-		case "backspace":
+		case "backspace", "ctrl+backspace":
 			// If on the first char of a line
 			if page.cursor == 0 {
 				if page.cursorLine > 0 {
 					page.cursorLine--
-					page.cursor = len(page.lines[page.cursorLine])
+					page.cursor = len(page.lines[page.cursorLine]) - 1
 				}
 			} else {
+				// Register word completed
+				if page.lines[page.cursorLine][page.cursor] == ' ' {
+					page.words--
+				}
 				page.correct.Pop()
 				page.cursor--
 			}
 		default:
 			// Check if typed last char
 			if page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1 {
-				return finished(page)
+				return show_results(page)
+			}
+			if page.lines[page.cursorLine][page.cursor] == ' ' {
+				page.words++
 			}
 			// Check whether input char correct
 			if msg.String() == string(page.lines[page.cursorLine][page.cursor]) {
