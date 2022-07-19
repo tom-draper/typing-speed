@@ -100,7 +100,7 @@ func extractParagraphs(doc *goquery.Document) string {
 
 	max_words := 300
 	n_words := 0
-	doc.Find("p").Each(func(i int, s *goquery.Selection) {
+	doc.Find("p").Each(func(_ int, s *goquery.Selection) {
 		paragraph := s.Text()
 		// Check if paragraph is empty
 		isPar, _ := regexp.Match(`[A-Za-z]`, []byte(paragraph))
