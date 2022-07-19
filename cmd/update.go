@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -29,7 +28,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case Typing:
 			page.time.remaining--
 			if page.time.remaining < 1 {
-				m.page = show_results(page)
+				m.page = showResults(page)
 				return m, nil // Timer finished - stop tick events
 			}
 			return m, tickEvery()
@@ -95,7 +94,7 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]stru
 	return page
 }
 
-func correct_wpm(lines []string, correct *Correct, time int) float64 {
+func correctWpm(lines []string, correct *Correct, time int) float64 {
 	char := 0
 	correct_words := 0
 	correct_word := true
@@ -125,8 +124,7 @@ func correct_wpm(lines []string, correct *Correct, time int) float64 {
 	return float64(correct_words) / minutes
 }
 
-func words_per_min_from_sec(wps []int, avg_word_len float64) []float64 {
-	fmt.Println(avg_word_len)
+func wordsPerMinFromSec(wps []int, avg_word_len float64) []float64 {
 	wpms := make([]float64, len(wps))
 	for i := range wps {
 		// Multiply second to get minutes, and divide by average word length (5)
@@ -135,10 +133,10 @@ func words_per_min_from_sec(wps []int, avg_word_len float64) []float64 {
 	return wpms
 }
 
-func show_results(page Typing) Results {
+func showResults(page Typing) Results {
 	avg_word_len := float64(page.correct.Length()) / float64(page.words)
-	wpms := words_per_min_from_sec(page.wps, avg_word_len)
-	wpm := correct_wpm(page.lines, page.correct, page.time.limit-page.time.remaining)
+	wpms := wordsPerMinFromSec(page.wps, avg_word_len)
+	wpm := correctWpm(page.lines, page.correct, page.time.limit-page.time.remaining)
 	accuracy := (float64(page.nCorrect) / (float64(page.nCorrect) + float64(page.nMistakes))) * 100.0
 	return InitResults(wpms, wpm, accuracy, page.nMistakes)
 }
@@ -167,7 +165,7 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 		default:
 			// Check if typed last char
 			if page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1 {
-				return show_results(page)
+				return showResults(page)
 			}
 			if page.lines[page.cursorLine][page.cursor] == ' ' {
 				page.words++

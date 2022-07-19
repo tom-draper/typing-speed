@@ -114,7 +114,7 @@ func (results Results) view(styles Styles, width int, height int) string {
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
 
-	return lipgloss.Place(width-12, height, lipgloss.Center, lipgloss.Center, s)
+	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, s)
 }
 
 func plotWpms(wpms []float64, width int) string {

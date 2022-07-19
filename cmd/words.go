@@ -29,11 +29,11 @@ func request(url string) string {
 	return string(body)
 }
 
-func valid_link(link string) bool {
+func validLink(link string) bool {
 	return link != "/wiki/" && link != "/wiki/Main_Page" && link != "/wiki/Wikipedia" && link != "/wiki/Free_content" && link != "/wiki/Encyclopedia" && link != "/wiki/English_language" && !strings.Contains(link, ".") && !strings.Contains(link, ":")
 }
 
-func wiki_links() []string {
+func wikiLinks() []string {
 	page := request("https://en.wikipedia.org/wiki/Main_Page")
 	re := regexp.MustCompile(`/wiki/[^"]*`)
 	matches := re.FindAll([]byte(page), -1)
@@ -41,7 +41,7 @@ func wiki_links() []string {
 	var links []string
 	for i := range matches {
 		link := string(matches[i])
-		if valid_link(link) {
+		if validLink(link) {
 			links = append(links, link)
 		}
 	}
@@ -49,14 +49,14 @@ func wiki_links() []string {
 	return links
 }
 
-func random_link(links []string) string {
+func randomLink(links []string) string {
 	rand.Seed(time.Now().UnixNano())
 	n := rand.Intn(len(links))
 	link := links[n]
 	return link
 }
 
-func html_doc(url string) *goquery.Document {
+func htmlDoc(url string) *goquery.Document {
 	// Request the HTML page
 	res, err := http.Get(url)
 	if err != nil {
@@ -94,7 +94,7 @@ func cleanParagraph(paragraph string) string {
 	return paragraph
 }
 
-func extract_paragraphs(doc *goquery.Document) string {
+func extractParagraphs(doc *goquery.Document) string {
 	// Find the review items
 	var text strings.Builder
 
@@ -121,23 +121,23 @@ func extract_paragraphs(doc *goquery.Document) string {
 	return text.String()
 }
 
-func page_content(link string) string {
+func pageContent(link string) string {
 	url := "https://en.wikipedia.org/" + link
-	doc := html_doc(url)
+	doc := htmlDoc(url)
 
-	paragraphs := extract_paragraphs(doc)
+	paragraphs := extractParagraphs(doc)
 	return paragraphs
 }
 
-func wiki_words() string {
-	links := wiki_links()
-	link := random_link(links)
-	text := page_content(link)
+func WikiWords() string {
+	links := wikiLinks()
+	link := randomLink(links)
+	text := pageContent(link)
 
 	return text
 }
 
-func read_words_file(path string) [1000]string {
+func readWordsFile(path string) [1000]string {
 	// Open the file.
 	f, _ := os.Open(path)
 	// Create a new Scanner for the file.
@@ -154,7 +154,7 @@ func read_words_file(path string) [1000]string {
 	return words
 }
 
-func shuffle_words(words [1000]string) [1000]string {
+func shuffleWords(words [1000]string) [1000]string {
 	loc_map := rand.Perm(len(words)) // Get a new location for each word
 
 	var shuffled_words [1000]string
@@ -164,9 +164,9 @@ func shuffle_words(words [1000]string) [1000]string {
 	return shuffled_words
 }
 
-func common_words() string {
-	words := read_words_file("words/common_words.txt")
-	words = shuffle_words(words)
+func CommonWords() string {
+	words := readWordsFile("words/common_words.txt")
+	words = shuffleWords(words)
 	text := strings.Join(words[:], " ")
 	return text
 }

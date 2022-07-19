@@ -69,7 +69,7 @@ func InitialModel() model {
 }
 
 func (m model) Init() tea.Cmd {
-	CallClear()
+	// CallClear()
 	// Just return `nil`, which means "no I/O right now, please."
 	return nil
 }
@@ -125,9 +125,9 @@ func applyConfigFilters(text string, config map[int]struct{}) string {
 func typingText(config map[int]struct{}) string {
 	var text string
 	if _, ok := config[0]; ok {
-		text = wiki_words()
+		text = WikiWords()
 	} else if _, ok := config[1]; ok {
-		text = common_words()
+		text = CommonWords()
 	}
 
 	text = applyConfigFilters(text, config)
