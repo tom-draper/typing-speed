@@ -6,6 +6,8 @@ To increase the difficulty, the current trending wikipedia topics can be used as
 
 Built using [bubbletea](https://github.com/charmbracelet/bubbletea) and inspired by [typioca](https://github.com/bloznelis/typioca).
 
+<br>
+
 <p align="center">
 	<img width="700" src="https://user-images.githubusercontent.com/41476809/179508232-ddac709c-2ec2-4eed-9378-6a354a3bd87e.png">
 </p>
