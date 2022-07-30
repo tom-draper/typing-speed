@@ -1,4 +1,4 @@
-# Typing Speed
+# Typing Speed Tester
 
 A configurable CLI typing speed test with performance metrics and graph.
 
