@@ -1,8 +1,8 @@
 # Typing Speed Tester
 
-A configurable CLI typing speed test with performance metrics and graph.
+A configurable CLI typing speed tester with performance metrics and graph.
 
-To increase the difficulty, the current trending wikipedia topics can be used as word content, with optional punctuation, capitalisation and digits.
+To increase the difficulty, the current trending Wikipedia topics can be used as word content, with optional punctuation, capitalisation and digits.
 
 Built using [bubbletea](https://github.com/charmbracelet/bubbletea).
 
