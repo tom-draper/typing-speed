@@ -23,3 +23,17 @@ Built using [bubbletea](https://github.com/charmbracelet/bubbletea).
 <p align="center">
 	<img src="https://user-images.githubusercontent.com/41476809/179508240-76fb384f-7ff8-4351-b8da-b7f47031f910.png">
 </p>
+
+## Getting Started
+
+#### 1. Compile to binary
+
+```bash
+go build main.go
+```
+
+#### 2. Run binary
+
+```bash
+./main
+```
