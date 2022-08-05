@@ -4,7 +4,7 @@ A configurable CLI typing speed test with performance metrics and graph.
 
 To increase the difficulty, the current trending wikipedia topics can be used as word content, with optional punctuation, capitalisation and digits.
 
-Built using [bubbletea](https://github.com/charmbracelet/bubbletea) and inspired by [typioca](https://github.com/bloznelis/typioca).
+Built using [bubbletea](https://github.com/charmbracelet/bubbletea).
 
 <br>
 
