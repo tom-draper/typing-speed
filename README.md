@@ -35,10 +35,10 @@ go get -u all
 #### 2. Compile to binary
 
 ```bash
-go build -o bin/main main.go
+go build -o bin main.go
 ```
 
-#### 3. Run binary
+#### 3. Execute binary
 
 ```bash
 ./bin/main

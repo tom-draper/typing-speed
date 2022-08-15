@@ -164,8 +164,8 @@ func shuffleWords(words [1000]string) [1000]string {
 	return shuffled_words
 }
 
-func CommonWords() string {
-	words := readWordsFile("words/common_words.txt")
+func CommonWords(path string) string {
+	words := readWordsFile(path)
 	words = shuffleWords(words)
 	text := strings.Join(words[:], " ")
 	return text
