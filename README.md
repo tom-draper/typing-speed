@@ -26,14 +26,20 @@ Built using [bubbletea](https://github.com/charmbracelet/bubbletea).
 
 ## Getting Started
 
-#### 1. Compile to binary
+#### 1. Install dependencies
 
 ```bash
-go build main.go
+go get -u all
 ```
 
-#### 2. Run binary
+#### 2. Compile to binary
 
 ```bash
-./main
+go build -o bin/main main.go
+```
+
+#### 3. Run binary
+
+```bash
+./bin/main
 ```
