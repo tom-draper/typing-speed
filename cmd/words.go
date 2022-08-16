@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -21,7 +21,7 @@ func request(url string) string {
 	}
 
 	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -38,11 +38,13 @@ func wikiLinks() []string {
 	re := regexp.MustCompile(`/wiki/[^"]*`)
 	matches := re.FindAll([]byte(page), -1)
 
+	seen := make(map[string]struct{})
 	var links []string
 	for i := range matches {
 		link := string(matches[i])
-		if validLink(link) {
+		if _, ok := seen[link]; !ok && validLink(link) {
 			links = append(links, link)
+			seen[link] = struct{}{}
 		}
 	}
 
@@ -166,7 +168,7 @@ func shuffleWords(words [1000]string) [1000]string {
 
 func CommonWords(path string) string {
 	words := readWordsFile(path)
-	words = shuffleWords(words)
+	// words = shuffleWords(words)
 	text := strings.Join(words[:], " ")
 	return text
 }

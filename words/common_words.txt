@@ -27,6 +27,7 @@ from
 or
 had
 by
+not
 word
 but
 what
@@ -351,7 +352,7 @@ heard
 best
 hour
 better
-true .
+true
 during
 hundred
 five
