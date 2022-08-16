@@ -55,14 +55,12 @@ type Page interface {
 type Style func(string) termenv.Style
 
 type Styles struct {
-	correct      Style
-	toEnter      Style
-	mistakes     Style
-	cursor       Style
-	runningTimer Style
-	stoppedTimer Style
-	greener      Style
-	faintGreen   Style
+	correct   Style
+	mistakes  Style
+	toEnter   Style
+	cursor    Style
+	highlight Style
+	title     Style
 }
 
 type model struct {

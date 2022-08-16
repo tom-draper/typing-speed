@@ -15,7 +15,7 @@ func (m model) View() string {
 func (menu MainMenu) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("  Main Menu\n\n", styles.faintGreen)
+	title := style("  Main Menu\n\n", styles.title)
 	sb.WriteString(title)
 
 	for i, choice := range menu.choices {
@@ -35,7 +35,7 @@ func (menu MainMenu) view(styles Styles, width int, height int) string {
 func (typing Typing) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	time := style(fmt.Sprintf("%ds", typing.time.remaining), styles.faintGreen)
+	time := style(fmt.Sprintf("%ds", typing.time.remaining), styles.title)
 	sb.WriteString(time)
 	sb.WriteString("\n")
 	// Ensure full width is used by a line taken to anchor centering
@@ -91,33 +91,33 @@ func distantFutureLine(line int, cursorLine int) bool {
 func (results Results) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("Results\n", styles.faintGreen)
+	title := style("Results\n", styles.title)
 	sb.WriteString(title)
 
 	graph := plotWpms(results.wpms, width)
 	sb.WriteString(graph)
 
 	sb.WriteString("\nWPM: ")
-	wpm := style(fmt.Sprintf("%.2f", results.wpm), styles.greener)
+	wpm := style(fmt.Sprintf("%.2f", results.wpm), styles.highlight)
 	sb.WriteString(wpm)
 
 	sb.WriteString("   Accuracy: ")
-	accuracy := style(fmt.Sprintf("%.2f", results.accuracy*100)+"%", styles.greener)
+	accuracy := style(fmt.Sprintf("%.2f", results.accuracy*100)+"%", styles.highlight)
 	sb.WriteString(accuracy)
 
 	sb.WriteString("   Mistakes: ")
-	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
+	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.highlight)
 	sb.WriteString(mistakes)
 
 	sb.WriteString("   Recovery: ")
-	recovery := style(fmt.Sprintf("%.2f", results.recovery*100)+"%", styles.greener)
+	recovery := style(fmt.Sprintf("%.2f", results.recovery*100)+"%", styles.highlight)
 	sb.WriteString(recovery)
 
 	performanceLabel := "\n\nPerformance: "
 	totalBars := int(float64(width)*0.45) - len(performanceLabel)
 	bars := int(results.performance * float64(totalBars))
 	sb.WriteString(performanceLabel)
-	sb.WriteString(style(strings.Repeat("|", bars), styles.greener))
+	sb.WriteString(style(strings.Repeat("|", bars), styles.highlight))
 	sb.WriteString(style(strings.Repeat("|", totalBars-bars), styles.toEnter))
 
 	restart := style("\n\nPress r to restart.", styles.toEnter)
@@ -144,7 +144,7 @@ func plotWpms(wpms []float64, width int) string {
 func (settings Settings) view(styles Styles, width int, height int) string {
 	var sb strings.Builder
 
-	title := style("  Settings\n\n", styles.faintGreen)
+	title := style("  Settings\n\n", styles.title)
 	sb.WriteString(title)
 
 	// Iterate over our choices
@@ -176,7 +176,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 		} else {
 			cursor := formatCursor(settings.cursor, i, styles)
 			checked := formatChecked(settings.selected, i)
-			row = fmt.Sprintf("%s [%s] %s\n", style(cursor, styles.greener), checked, choice)
+			row = fmt.Sprintf("%s [%s] %s\n", style(cursor, styles.highlight), checked, choice)
 		}
 		sb.WriteString(row)
 	}
@@ -189,7 +189,7 @@ func (settings Settings) view(styles Styles, width int, height int) string {
 func formatCursor(cursor int, current int, styles Styles) string {
 	cursorStr := " " // No cursor
 	if cursor == current {
-		cursorStr = style(">", styles.greener) // Cursor
+		cursorStr = style(">", styles.highlight) // Cursor
 	}
 	return cursorStr
 }
@@ -205,7 +205,7 @@ func formatChecked(selected map[int]struct{}, idx int) string {
 func formatColouredChoice(choice string, selected map[int]struct{}, idx int, styles Styles) string {
 	colouredChoice := choice
 	if _, ok := selected[idx]; ok {
-		colouredChoice = style(choice, styles.greener)
+		colouredChoice = style(choice, styles.highlight)
 	}
 	return colouredChoice
 }

@@ -52,16 +52,10 @@ func InitialModel() model {
 			cursor: func(str string) termenv.Style {
 				return termenv.String(str).Reverse().Bold()
 			},
-			runningTimer: func(str string) termenv.Style {
-				return termenv.String(str).Foreground(profile.Color("2"))
-			},
-			stoppedTimer: func(str string) termenv.Style {
-				return termenv.String(str).Foreground(profile.Color("2")).Faint()
-			},
-			greener: func(str string) termenv.Style {
+			highlight: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(profile.Color("6")).Faint()
 			},
-			faintGreen: func(str string) termenv.Style {
+			title: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(profile.Color("10")).Faint()
 			},
 		},
