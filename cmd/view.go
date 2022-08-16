@@ -109,6 +109,20 @@ func (results Results) view(styles Styles, width int, height int) string {
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
 
+	performanceLabel := "\n\nPerformance: "
+	nTotalBars := int(float64(width)*0.45) - len(performanceLabel)
+	nBars := int(results.performance * float64(nTotalBars))
+	sb.WriteString(performanceLabel)
+	for i := 0; i < nTotalBars; i++ {
+		var bar string
+		if i < nBars {
+			bar = style("|", styles.greener)
+		} else {
+			bar = style("|", styles.toEnter)
+		}
+		sb.WriteString(bar)
+	}
+
 	restart := style("\n\nPress r to restart.", styles.toEnter)
 	sb.WriteString(restart)
 

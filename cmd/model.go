@@ -39,10 +39,11 @@ type Typing struct {
 }
 
 type Results struct {
-	wpm      float64
-	wpms     []float64
-	accuracy float64
-	mistakes int
+	wpm         float64
+	wpms        []float64
+	accuracy    float64
+	mistakes    int
+	performance float64
 }
 
 type Page interface {

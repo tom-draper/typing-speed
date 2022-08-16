@@ -170,10 +170,13 @@ func InitTyping(config map[int]struct{}) Typing {
 }
 
 func InitResults(wpms []float64, wpm float64, accuracy float64, mistakes int) Results {
+	ideal := 120.0
+	performance := ((accuracy/100.0)*wpm - float64(mistakes)*0.5) / ideal
 	return Results{
-		wpms:     wpms,
-		wpm:      wpm,
-		accuracy: accuracy,
-		mistakes: mistakes,
+		wpms:        wpms,
+		wpm:         wpm,
+		accuracy:    accuracy,
+		mistakes:    mistakes,
+		performance: performance,
 	}
 }
