@@ -43,6 +43,7 @@ type Results struct {
 	wpms        []float64
 	accuracy    float64
 	mistakes    int
+	recovery    float64
 	performance float64
 }
 

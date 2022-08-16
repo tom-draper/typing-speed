@@ -62,3 +62,15 @@ func (c *Correct) FinalAccuracy() float32 {
 	}
 	return float32(correct) / float32(len(c.stack)) * 100
 }
+
+func (c *Correct) Mistakes() int {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	mistakes := 0
+	for i := 0; i < len(c.stack); i++ {
+		if !c.stack[i] {
+			mistakes++
+		}
+	}
+	return mistakes
+}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -137,8 +138,11 @@ func showResults(page Typing) Results {
 	avg_word_len := float64(page.correct.Length()) / float64(page.words)
 	wpms := wordsPerMinFromSec(page.wps, avg_word_len)
 	wpm := correctWpm(page.lines, page.correct, page.time.limit-page.time.remaining)
-	accuracy := (float64(page.nCorrect) / (float64(page.nCorrect) + float64(page.nMistakes))) * 100.0
-	return InitResults(wpms, wpm, accuracy, page.nMistakes)
+	accuracy := (float64(page.nCorrect) / (float64(page.nCorrect) + float64(page.nMistakes)))
+	remainingMistakes := page.correct.Mistakes()
+	fmt.Println(remainingMistakes, page.nMistakes)
+	recovery := (1.0 - (float64(remainingMistakes) / float64(page.nMistakes)))
+	return InitResults(wpms, wpm, accuracy, page.nMistakes, recovery)
 }
 
 func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct{}) Page {

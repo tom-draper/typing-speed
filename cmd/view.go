@@ -102,12 +102,16 @@ func (results Results) view(styles Styles, width int, height int) string {
 	sb.WriteString(wpm)
 
 	sb.WriteString("   Accuracy: ")
-	accuracy := style(fmt.Sprintf("%.2f", results.accuracy)+"%", styles.greener)
+	accuracy := style(fmt.Sprintf("%.2f", results.accuracy*100)+"%", styles.greener)
 	sb.WriteString(accuracy)
 
 	sb.WriteString("   Mistakes: ")
 	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.greener)
 	sb.WriteString(mistakes)
+
+	sb.WriteString("   Recovery: ")
+	recovery := style(fmt.Sprintf("%.2f", results.recovery*100)+"%", styles.greener)
+	sb.WriteString(recovery)
 
 	performanceLabel := "\n\nPerformance: "
 	nTotalBars := int(float64(width)*0.45) - len(performanceLabel)
