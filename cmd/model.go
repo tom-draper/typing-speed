@@ -25,17 +25,18 @@ type Time struct {
 }
 
 type Typing struct {
-	lines      []string
-	correct    *Correct
-	width      int
-	started    bool
-	nMistakes  int
-	nCorrect   int
-	cursor     int
-	cursorLine int
-	time       *Time
-	wps        []int
-	words      int
+	lines         []string
+	correct       *Correct
+	width         int
+	started       bool
+	totalMistakes int
+	totalCorrect  int
+	cursor        int
+	cursorLine    int
+	maxLineLen    int
+	time          *Time
+	wps           []int
+	words         int
 }
 
 type Results struct {

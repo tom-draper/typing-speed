@@ -39,7 +39,7 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 	sb.WriteString(time)
 	sb.WriteString("\n")
 	// Ensure full width is used by a line taken to anchor centering
-	sb.WriteString(strings.Repeat("", width))
+	sb.WriteString(strings.Repeat(" ", typing.maxLineLen))
 	sb.WriteString("\n")
 
 	charsProcessed := 0
@@ -114,18 +114,11 @@ func (results Results) view(styles Styles, width int, height int) string {
 	sb.WriteString(recovery)
 
 	performanceLabel := "\n\nPerformance: "
-	nTotalBars := int(float64(width)*0.45) - len(performanceLabel)
-	nBars := int(results.performance * float64(nTotalBars))
+	totalBars := int(float64(width)*0.45) - len(performanceLabel)
+	bars := int(results.performance * float64(totalBars))
 	sb.WriteString(performanceLabel)
-	for i := 0; i < nTotalBars; i++ {
-		var bar string
-		if i < nBars {
-			bar = style("|", styles.greener)
-		} else {
-			bar = style("|", styles.toEnter)
-		}
-		sb.WriteString(bar)
-	}
+	sb.WriteString(style(strings.Repeat("|", bars), styles.greener))
+	sb.WriteString(style(strings.Repeat("|", totalBars-bars), styles.toEnter))
 
 	restart := style("\n\nPress r to restart.", styles.toEnter)
 	sb.WriteString(restart)

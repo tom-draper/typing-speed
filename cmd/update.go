@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -97,32 +96,32 @@ func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]stru
 
 func correctWpm(lines []string, correct *Correct, time int) float64 {
 	char := 0
-	correct_words := 0
-	correct_word := true
+	correctWords := 0
+	correctWord := true
 	for i := 0; i < len(lines); i++ {
 		for j := 0; j < len(lines[i]); j++ {
 			if char >= correct.Length() {
 				break // Reached the last character entered
 			} else if !correct.AtIndex(char) {
 				// If a letter in current word is incorect, set flag
-				correct_word = false
+				correctWord = false
 			} else if lines[i][j] == ' ' { // Finished a word
-				if correct_word || j == len(lines[i])-1 {
-					correct_words++
+				if correctWord || j == len(lines[i])-1 {
+					correctWords++
 				} else {
-					correct_word = true // Reset flag
+					correctWord = true // Reset flag
 				}
 			}
 			char++
 		}
 	}
 	// If made it to the final character, register the final word
-	if correct.Length() == char && correct_word {
-		correct_words++
+	if correct.Length() == char && correctWord {
+		correctWords++
 	}
 
 	minutes := float64(time) / 60.0
-	return float64(correct_words) / minutes
+	return float64(correctWords) / minutes
 }
 
 func wordsPerMinFromSec(wps []int, avg_word_len float64) []float64 {
@@ -135,14 +134,13 @@ func wordsPerMinFromSec(wps []int, avg_word_len float64) []float64 {
 }
 
 func showResults(page Typing) Results {
-	avg_word_len := float64(page.correct.Length()) / float64(page.words)
-	wpms := wordsPerMinFromSec(page.wps, avg_word_len)
+	avgWordLen := float64(page.correct.Length()) / float64(page.words)
+	wpms := wordsPerMinFromSec(page.wps, avgWordLen)
 	wpm := correctWpm(page.lines, page.correct, page.time.limit-page.time.remaining)
-	accuracy := (float64(page.nCorrect) / (float64(page.nCorrect) + float64(page.nMistakes)))
+	accuracy := (float64(page.totalCorrect) / (float64(page.totalCorrect) + float64(page.totalMistakes)))
 	remainingMistakes := page.correct.Mistakes()
-	fmt.Println(remainingMistakes, page.nMistakes)
-	recovery := (1.0 - (float64(remainingMistakes) / float64(page.nMistakes)))
-	return InitResults(wpms, wpm, accuracy, page.nMistakes, recovery)
+	recovery := (1.0 - (float64(remainingMistakes) / float64(page.totalMistakes)))
+	return InitResults(wpms, wpm, accuracy, page.totalMistakes, recovery)
 }
 
 func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct{}) Page {
@@ -177,10 +175,10 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 			// Check whether input char correct
 			if msg.String() == string(page.lines[page.cursorLine][page.cursor]) {
 				page.correct.Push(true)
-				page.nCorrect++
+				page.totalCorrect++
 			} else {
 				page.correct.Push(false)
-				page.nMistakes++
+				page.totalMistakes++
 			}
 			page.cursor++
 			// Check if move to next line

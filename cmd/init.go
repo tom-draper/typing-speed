@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -88,10 +89,11 @@ func InitSettings(config map[int]struct{}) Settings {
 	}
 }
 
-func formatText(text string) []string {
+func formatText(text string, width int) []string {
+	// Whitespace is removed by wordwrap to preserve with a pipe character
 	text = strings.ReplaceAll(text, " ", "|")
 
-	ww := wordwrap.NewWriter(50)
+	ww := wordwrap.NewWriter(width)
 	ww.Breakpoints = []rune{'|'}
 	ww.KeepNewlines = false
 	ww.Write([]byte(text))
@@ -145,6 +147,21 @@ func timeLimit(config map[int]struct{}) (int, error) {
 	return 0, errors.New("error: no time limit config selected")
 }
 
+func MaxInt(x int, y int) int {
+	if x >= y {
+		return x
+	}
+	return y
+}
+
+func maxLen(arr []string) int {
+	max := 0
+	for _, str := range arr {
+		max = MaxInt(max, len(str))
+	}
+	return max
+}
+
 func InitTyping(config map[int]struct{}) Typing {
 	width := 50
 	text := typingText(config)
@@ -152,14 +169,17 @@ func InitTyping(config map[int]struct{}) Typing {
 	if err != nil {
 		panic(err)
 	}
+	lines := formatText(text, width)
+	maxLineLen := maxLen(lines)
 	return Typing{
-		lines:      formatText(text),
-		correct:    NewCorrect(),
-		width:      width,
-		started:    false,
-		cursorLine: 0,
-		nMistakes:  0,
-		nCorrect:   0,
+		lines:         lines,
+		correct:       NewCorrect(),
+		width:         width,
+		started:       false,
+		cursorLine:    0,
+		totalMistakes: 0,
+		totalCorrect:  0,
+		maxLineLen:    maxLineLen,
 		time: &Time{
 			lastUpdated: time.Now(),
 			limit:       limit,
@@ -169,9 +189,15 @@ func InitTyping(config map[int]struct{}) Typing {
 	}
 }
 
-func InitResults(wpms []float64, wpm float64, accuracy float64, mistakes int, recovery float64) Results {
+func calcPerformance(accuracy float64, recovery float64, wpm float64, mistakes int) float64 {
 	ideal := 100.0
 	performance := (accuracy*recovery*wpm - float64(mistakes)*0.5) / ideal
+	performance = math.Min(performance, 1.0)
+	return performance
+}
+
+func InitResults(wpms []float64, wpm float64, accuracy float64, mistakes int, recovery float64) Results {
+	performance := calcPerformance(accuracy, recovery, wpm, mistakes)
 	return Results{
 		wpms:        wpms,
 		wpm:         wpm,
