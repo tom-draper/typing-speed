@@ -15,7 +15,7 @@ type MainMenu struct {
 type Settings struct {
 	choices  []string
 	cursor   int
-	selected map[int]struct{}
+	selected map[int]struct{} // Reference to model.config
 }
 
 type Time struct {

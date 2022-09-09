@@ -55,7 +55,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case Results:
 		m.page = page.handleInput(msg, page, m.config)
 	case Settings:
-		m.page = page.handleInput(msg, page)
+		m.page = page.handleInput(msg, page, m.config)
 	}
 	return m, nil
 }
@@ -212,7 +212,9 @@ func (results Results) handleInput(msg tea.Msg, page Results, config map[int]str
 	return page
 }
 
-func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
+func (settings Settings) handleInput(msg tea.Msg, page Settings, config map[int]struct{}) Page {
+	// For method consistency, page.selected and config reference the same map
+	// Modifications made to config are reflected in page.selected and vice versa
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -233,35 +235,35 @@ func (settings Settings) handleInput(msg tea.Msg, page Settings) Page {
 			switch page.choices[page.cursor] {
 			case "Wikipedia":
 				// Turn off other word collections
-				delete(page.selected, 1)
-				page.selected[page.cursor] = struct{}{} // Turn on wikipedia
+				delete(config, 1)
+				config[page.cursor] = struct{}{} // Turn on wikipedia
 			case "Common words":
 				// Turn off other word collections
-				delete(page.selected, 0)
-				page.selected[page.cursor] = struct{}{} // Turn on common words
+				delete(config, 0)
+				config[page.cursor] = struct{}{} // Turn on common words
 			case "30s":
 				// Turn off 60s and 120s
-				delete(page.selected, 3)
-				delete(page.selected, 4)
-				page.selected[page.cursor] = struct{}{}
+				delete(config, 3)
+				delete(config, 4)
+				config[page.cursor] = struct{}{}
 			case "60s":
 				// Turn off 60s and 120s
-				delete(page.selected, 2)
-				delete(page.selected, 4)
-				page.selected[page.cursor] = struct{}{}
+				delete(config, 2)
+				delete(config, 4)
+				config[page.cursor] = struct{}{}
 			case "120s":
 				// Turn off 60s and 120s
-				delete(page.selected, 2)
-				delete(page.selected, 3)
-				page.selected[page.cursor] = struct{}{}
+				delete(config, 2)
+				delete(config, 3)
+				config[page.cursor] = struct{}{}
 			case "Back":
 				return InitMainMenu() // Change to main menu page
 			default:
 				// Toggle option
-				if _, ok := page.selected[page.cursor]; ok {
-					delete(page.selected, page.cursor)
+				if _, ok := config[page.cursor]; ok {
+					delete(config, page.cursor)
 				} else {
-					page.selected[page.cursor] = struct{}{}
+					config[page.cursor] = struct{}{}
 				}
 			}
 
