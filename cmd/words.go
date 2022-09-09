@@ -135,7 +135,6 @@ func WikiWords() string {
 	links := wikiLinks()
 	link := randomLink(links)
 	text := pageContent(link)
-
 	return text
 }
 

@@ -128,7 +128,7 @@ func typingText(config map[int]struct{}) string {
 	if _, ok := config[0]; ok {
 		text = WikiWords()
 	} else if _, ok := config[1]; ok {
-		text = CommonWords("/words/common_words.txt")
+		text = CommonWords("words/common_words.txt")
 	}
 
 	text = applyConfigFilters(text, config)
