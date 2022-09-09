@@ -22,7 +22,7 @@ func terminalDimensions() (int, int) {
 	return w, h
 }
 
-func initConfig() map[int]struct{} {
+func initConfig() Config {
 	// Enable default settings - corresponds to options in Settings page
 	config := make(map[int]struct{})
 	config[0] = struct{}{} // Wikipedia
@@ -30,15 +30,18 @@ func initConfig() map[int]struct{} {
 	config[5] = struct{}{} // Capitalisation
 	config[6] = struct{}{} // Punctuation
 	config[7] = struct{}{} // Numbers
-	return config
+
+	c := Config{
+		config:    config,
+		wikiLinks: nil,
+	}
+	return c
 }
 
 func InitialModel() model {
 	profile := termenv.ColorProfile()
 	foreground := termenv.ForegroundColor()
 	w, h := terminalDimensions()
-
-	config := initConfig()
 
 	return model{
 		page:   InitMainMenu(),
@@ -64,7 +67,7 @@ func InitialModel() model {
 				return termenv.String(str).Foreground(profile.Color("10")).Faint()
 			},
 		},
-		config: config,
+		config: initConfig(),
 	}
 }
 
@@ -81,10 +84,10 @@ func InitMainMenu() MainMenu {
 	}
 }
 
-func InitSettings(config map[int]struct{}) Settings {
+func InitSettings(config Config) Settings {
 	return Settings{
 		choices:  []string{"Wikipedia", "Common words", "30s", "60s", "120s", "Capitalisation", "Punctuation", "Numbers", "Back"},
-		selected: config,
+		selected: config.config,
 	}
 }
 
@@ -105,29 +108,29 @@ func formatText(text string, width int) []string {
 	return lines
 }
 
-func applyConfigFilters(text string, config map[int]struct{}) string {
+func applyConfigFilters(text string, config Config) string {
 	// Remove capitalisation
-	if _, ok := config[5]; !ok {
+	if _, ok := config.config[5]; !ok {
 		text = strings.ToLower(text)
 	}
 	// Remove punctuation
-	if _, ok := config[6]; !ok {
+	if _, ok := config.config[6]; !ok {
 		re := regexp.MustCompile("[!-/:-@[-`{-~.,?<>']")
 		text = re.ReplaceAllString(text, "")
 	}
 	// Remove numbers
-	if _, ok := config[7]; !ok {
+	if _, ok := config.config[7]; !ok {
 		re := regexp.MustCompile(`[0-9]`)
 		text = re.ReplaceAllString(text, "")
 	}
 	return text
 }
 
-func typingText(config map[int]struct{}) string {
+func typingText(config Config) string {
 	var text string
-	if _, ok := config[0]; ok {
-		text = WikiWords()
-	} else if _, ok := config[1]; ok {
+	if _, ok := config.config[0]; ok {
+		text = WikiWords(config)
+	} else if _, ok := config.config[1]; ok {
 		text = CommonWords("words/common_words.txt")
 	}
 
@@ -135,12 +138,12 @@ func typingText(config map[int]struct{}) string {
 	return text
 }
 
-func timeLimit(config map[int]struct{}) (int, error) {
-	if _, ok := config[2]; ok {
+func timeLimit(config Config) (int, error) {
+	if _, ok := config.config[2]; ok {
 		return 30, nil
-	} else if _, ok := config[3]; ok {
+	} else if _, ok := config.config[3]; ok {
 		return 60, nil
-	} else if _, ok := config[4]; ok {
+	} else if _, ok := config.config[4]; ok {
 		return 120, nil
 	}
 	return 0, errors.New("error: no time limit config selected")
@@ -161,7 +164,7 @@ func maxLen(arr []string) int {
 	return max
 }
 
-func InitTyping(config map[int]struct{}) Typing {
+func InitTyping(config Config) Typing {
 	width := 50
 	text := typingText(config)
 	limit, err := timeLimit(config)

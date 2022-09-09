@@ -60,7 +60,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (page MainMenu) handleInput(msg tea.Msg, config map[int]struct{}) Page {
+func (page MainMenu) handleInput(msg tea.Msg, config Config) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -143,7 +143,7 @@ func showResults(page Typing) Results {
 	return InitResults(wpms, wpm, accuracy, page.totalMistakes, recovery)
 }
 
-func (page Typing) handleInput(msg tea.Msg, config map[int]struct{}) Page {
+func (page Typing) handleInput(msg tea.Msg, config Config) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -198,7 +198,7 @@ func (page Typing) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 	return page
 }
 
-func (page Results) handleInput(msg tea.Msg, config map[int]struct{}) Page {
+func (page Results) handleInput(msg tea.Msg, config Config) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -212,7 +212,7 @@ func (page Results) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 	return page
 }
 
-func (page Settings) handleInput(msg tea.Msg, config map[int]struct{}) Page {
+func (page Settings) handleInput(msg tea.Msg, config Config) Page {
 	// For method consistency, page.selected and config reference the same map
 	// Modifications made to config are reflected in page.selected and vice versa
 	switch msg := msg.(type) {
@@ -235,35 +235,35 @@ func (page Settings) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 			switch page.choices[page.cursor] {
 			case "Wikipedia":
 				// Turn off other word collections
-				delete(config, 1)
-				config[page.cursor] = struct{}{} // Turn on wikipedia
+				delete(config.config, 1)
+				config.config[page.cursor] = struct{}{} // Turn on wikipedia
 			case "Common words":
 				// Turn off other word collections
-				delete(config, 0)
-				config[page.cursor] = struct{}{} // Turn on common words
+				delete(config.config, 0)
+				config.config[page.cursor] = struct{}{} // Turn on common words
 			case "30s":
 				// Turn off 60s and 120s
-				delete(config, 3)
-				delete(config, 4)
-				config[page.cursor] = struct{}{}
+				delete(config.config, 3)
+				delete(config.config, 4)
+				config.config[page.cursor] = struct{}{}
 			case "60s":
 				// Turn off 60s and 120s
-				delete(config, 2)
-				delete(config, 4)
-				config[page.cursor] = struct{}{}
+				delete(config.config, 2)
+				delete(config.config, 4)
+				config.config[page.cursor] = struct{}{}
 			case "120s":
 				// Turn off 60s and 120s
-				delete(config, 2)
-				delete(config, 3)
-				config[page.cursor] = struct{}{}
+				delete(config.config, 2)
+				delete(config.config, 3)
+				config.config[page.cursor] = struct{}{}
 			case "Back":
 				return InitMainMenu() // Change to main menu page
 			default:
 				// Toggle option
-				if _, ok := config[page.cursor]; ok {
-					delete(config, page.cursor)
+				if _, ok := config.config[page.cursor]; ok {
+					delete(config.config, page.cursor)
 				} else {
-					config[page.cursor] = struct{}{}
+					config.config[page.cursor] = struct{}{}
 				}
 			}
 

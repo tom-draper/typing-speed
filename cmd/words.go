@@ -33,7 +33,7 @@ func validLink(link string) bool {
 	return link != "/wiki/" && link != "/wiki/Main_Page" && link != "/wiki/Wikipedia" && link != "/wiki/Free_content" && link != "/wiki/Encyclopedia" && link != "/wiki/English_language" && !strings.Contains(link, ".") && !strings.Contains(link, ":")
 }
 
-func wikiLinks() []string {
+func getWikiLinks() []string {
 	page := request("https://en.wikipedia.org/wiki/Main_Page")
 	re := regexp.MustCompile(`/wiki/[^"]*`)
 	matches := re.FindAll([]byte(page), -1)
@@ -131,8 +131,13 @@ func pageContent(link string) string {
 	return paragraphs
 }
 
-func WikiWords() string {
-	links := wikiLinks()
+func WikiWords(config Config) string {
+	links := config.wikiLinks
+	if links == nil {
+		// If haven't requested wiki links before
+		links = getWikiLinks()
+		config.wikiLinks = links
+	}
 	link := randomLink(links)
 	text := pageContent(link)
 	return text

@@ -63,10 +63,15 @@ type Styles struct {
 	title     Style
 }
 
+type Config struct {
+	config    map[int]struct{}
+	wikiLinks []string // Temp wiki links
+}
+
 type model struct {
 	page   Page
 	styles Styles
 	width  int
 	height int
-	config map[int]struct{}
+	config Config
 }
