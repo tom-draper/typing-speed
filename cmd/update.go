@@ -45,22 +45,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		}
-		m.page = page.handleInput(msg, page, m.config)
+		m.page = page.handleInput(msg, m.config)
 	case Typing:
 		firstLetter := !page.started
-		m.page = page.handleInput(msg, page, m.config)
+		m.page = page.handleInput(msg, m.config)
 		if firstLetter {
 			return m, tickEvery() // Start timer once first key pressed
 		}
 	case Results:
-		m.page = page.handleInput(msg, page, m.config)
+		m.page = page.handleInput(msg, m.config)
 	case Settings:
-		m.page = page.handleInput(msg, page, m.config)
+		m.page = page.handleInput(msg, m.config)
 	}
 	return m, nil
 }
 
-func (menu MainMenu) handleInput(msg tea.Msg, page MainMenu, config map[int]struct{}) Page {
+func (page MainMenu) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -143,7 +143,7 @@ func showResults(page Typing) Results {
 	return InitResults(wpms, wpm, accuracy, page.totalMistakes, recovery)
 }
 
-func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct{}) Page {
+func (page Typing) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -198,7 +198,7 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 	return page
 }
 
-func (results Results) handleInput(msg tea.Msg, page Results, config map[int]struct{}) Page {
+func (page Results) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -212,7 +212,7 @@ func (results Results) handleInput(msg tea.Msg, page Results, config map[int]str
 	return page
 }
 
-func (settings Settings) handleInput(msg tea.Msg, page Settings, config map[int]struct{}) Page {
+func (page Settings) handleInput(msg tea.Msg, config map[int]struct{}) Page {
 	// For method consistency, page.selected and config reference the same map
 	// Modifications made to config are reflected in page.selected and vice versa
 	switch msg := msg.(type) {

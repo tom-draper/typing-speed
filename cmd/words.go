@@ -168,7 +168,7 @@ func shuffleWords(words [1000]string) [1000]string {
 
 func CommonWords(path string) string {
 	words := readWordsFile(path)
-	// words = shuffleWords(words)
+	words = shuffleWords(words)
 	text := strings.Join(words[:], " ")
 	return text
 }
