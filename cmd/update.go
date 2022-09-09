@@ -169,10 +169,11 @@ func (typing Typing) handleInput(msg tea.Msg, page Typing, config map[int]struct
 			if page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1 {
 				return showResults(page)
 			}
+			// If encountered a space, increment words completed
 			if page.lines[page.cursorLine][page.cursor] == ' ' {
 				page.words++
 			}
-			// Check whether input char correct
+			// Check whether entered char is correct
 			if msg.String() == string(page.lines[page.cursorLine][page.cursor]) {
 				page.correct.Push(true)
 				page.totalCorrect++

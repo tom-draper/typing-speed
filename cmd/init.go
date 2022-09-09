@@ -22,11 +22,7 @@ func terminalDimensions() (int, int) {
 	return w, h
 }
 
-func InitialModel() model {
-	profile := termenv.ColorProfile()
-	foreground := termenv.ForegroundColor()
-	w, h := terminalDimensions()
-
+func initConfig() map[int]struct{} {
 	// Enable default settings - corresponds to options in Settings page
 	config := make(map[int]struct{})
 	config[0] = struct{}{} // Wikipedia
@@ -34,6 +30,15 @@ func InitialModel() model {
 	config[5] = struct{}{} // Capitalisation
 	config[6] = struct{}{} // Punctuation
 	config[7] = struct{}{} // Numbers
+	return config
+}
+
+func InitialModel() model {
+	profile := termenv.ColorProfile()
+	foreground := termenv.ForegroundColor()
+	w, h := terminalDimensions()
+
+	config := initConfig()
 
 	return model{
 		page:   InitMainMenu(),
