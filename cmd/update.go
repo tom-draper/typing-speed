@@ -137,9 +137,12 @@ func showResults(page Typing) Results {
 	avgWordLen := float64(page.correct.Length()) / float64(page.words)
 	wpms := wordsPerMinFromSec(page.wps, avgWordLen)
 	wpm := correctWpm(page.lines, page.correct, page.time.limit-page.time.remaining)
-	accuracy := (float64(page.totalCorrect) / (float64(page.totalCorrect) + float64(page.totalMistakes)))
-	remainingMistakes := page.correct.Mistakes()
-	recovery := (1.0 - (float64(remainingMistakes) / float64(page.totalMistakes)))
+	accuracy := float64(page.totalCorrect) / (float64(page.totalCorrect) + float64(page.totalMistakes))
+	remainingMistakes := page.correct.Mistakes() // Uncorrected mistakes
+	recovery := 1.0
+	if page.totalMistakes > 0 {
+		recovery = 1.0 - (float64(remainingMistakes) / float64(page.totalMistakes))
+	}
 	return InitResults(wpms, wpm, accuracy, page.totalMistakes, recovery)
 }
 
