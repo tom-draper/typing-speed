@@ -82,6 +82,7 @@ func cleanParagraph(paragraph string) string {
 	b_re := regexp.MustCompile(`\s?\[[^\]]*\]`)
 	p_re := regexp.MustCompile(`\s?\([^\)]*\)`)
 	nl_re := regexp.MustCompile(`\n`)
+	nonascii_re := regexp.MustCompile(`[^\x00-\x7F]+`)
 	ws_re := regexp.MustCompile(`\s{2,}`)
 	// Remove references
 	paragraph = b_re.ReplaceAllString(paragraph, "")
@@ -89,8 +90,10 @@ func cleanParagraph(paragraph string) string {
 	paragraph = p_re.ReplaceAllString(paragraph, "")
 	// Remove newlines wordwrap will insert these
 	paragraph = nl_re.ReplaceAllString(paragraph, "")
+	// Remove any characters outside of the ascii set
+	paragraph = nonascii_re.ReplaceAllString(paragraph, " ")
 	// Remove any double+ spaces created by removals
-	paragraph = ws_re.ReplaceAllString(paragraph, " ")
+	paragraph = ws_re.ReplaceAllString(paragraph, "")
 	// Trim spaces at before and end of paragraph
 	paragraph = strings.TrimSpace(paragraph)
 	return paragraph
