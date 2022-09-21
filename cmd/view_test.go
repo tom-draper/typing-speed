@@ -28,9 +28,11 @@ func TestAllFontColours(t *testing.T) {
 
 func TestModelFontColours(t *testing.T) {
 	m := InitialModel()
-	fmt.Println("Style:", style("correct", m.styles.correct))
+	fmt.Println("Style:", style("green", m.styles.green))
+	fmt.Println("Style:", style("greenUnderline", m.styles.greenUnderline))
 	fmt.Println("Style:", style("normal", m.styles.normal))
-	fmt.Println("Style:", style("mistakes", m.styles.mistakes))
+	fmt.Println("Style:", style("red", m.styles.red))
+	fmt.Println("Style:", style("redUnderline", m.styles.redUnderline))
 	fmt.Println("Style:", style("cursor", m.styles.cursor))
 	fmt.Println("Style:", style("highlight", m.styles.highlight))
 	fmt.Println("Style:", style("title", m.styles.title))

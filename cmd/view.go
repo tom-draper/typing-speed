@@ -54,9 +54,9 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 				break // Skip printing entered lines more then 2 away from current line
 			} else if i < typing.cursorLine || (i == typing.cursorLine && j < typing.cursor) {
 				// Entered chars
-				entered := style(string(typing.lines[i][j]), styles.correct)
+				entered := style(string(typing.lines[i][j]), styles.green)
 				if !typing.correct.AtIndex(charsProcessed) {
-					entered = style(string(typing.lines[i][j]), styles.mistakes)
+					entered = style(string(typing.lines[i][j]), styles.redUnderline)
 				}
 				sb.WriteString(entered)
 			} else if j == typing.cursor && i == typing.cursorLine {
@@ -65,8 +65,8 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 				sb.WriteString(cursor)
 			} else {
 				// Chars to enter
-				toEnter := style(string(typing.lines[i][j]), styles.toEnter)
-				sb.WriteString(normal)
+				toEnter := style(string(typing.lines[i][j]), styles.normal)
+				sb.WriteString(toEnter)
 			}
 			charsProcessed++
 			if j == len(typing.lines[i])-1 {
@@ -112,7 +112,7 @@ func (results Results) view(styles Styles, width int, height int) string {
 	divider := style(" | ", styles.normal)
 	sb.WriteString(divider)
 
-	mistakes := style(fmt.Sprintf("%d", results.keystrokesMistakes), styles.err)
+	mistakes := style(fmt.Sprintf("%d", results.keystrokesMistakes), styles.red)
 	sb.WriteString(mistakes)
 
 	sb.WriteString("   Recovery: ")
@@ -134,7 +134,16 @@ func (results Results) view(styles Styles, width int, height int) string {
 	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, s)
 }
 
+func smoothWpms(wpms []float64) {
+	for i, wpm := range wpms {
+		if i > 0 {
+			wpms[i] = (wpm + wpms[i-1]) / 2
+		}
+	}
+}
+
 func plotWpms(wpms []float64, width int) string {
+	smoothWpms(wpms)
 	wpmGraph := asciigraph.Plot(
 		wpms,
 		asciigraph.Precision(0),

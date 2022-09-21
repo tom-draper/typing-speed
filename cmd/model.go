@@ -56,13 +56,14 @@ type Page interface {
 type Style func(string) termenv.Style
 
 type Styles struct {
-	normal    Style
-	correct   Style
-	mistakes  Style
-	err       Style
-	cursor    Style
-	highlight Style
-	title     Style
+	normal         Style
+	green          Style
+	greenUnderline Style
+	red            Style
+	redUnderline   Style
+	cursor         Style
+	highlight      Style
+	title          Style
 }
 
 type Config struct {

@@ -48,17 +48,20 @@ func InitialModel() model {
 		width:  w,
 		height: h,
 		styles: Styles{
-			correct: func(str string) termenv.Style {
-				return termenv.String(str).Foreground(foreground)
-			},
 			normal: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(foreground).Faint()
 			},
-			mistakes: func(str string) termenv.Style {
-				return termenv.String(str).Foreground(profile.Color("1")).Underline()
+			green: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(foreground)
 			},
-			err: func(str string) termenv.Style {
+			greenUnderline: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(foreground).Underline()
+			},
+			red: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(profile.Color("1"))
+			},
+			redUnderline: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("1")).Underline()
 			},
 			cursor: func(str string) termenv.Style {
 				return termenv.String(str).Reverse().Bold()
