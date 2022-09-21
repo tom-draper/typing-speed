@@ -137,13 +137,13 @@ func showResults(page Typing) Results {
 	avgWordLen := float64(page.correct.Length()) / float64(page.words)
 	wpms := wordsPerMinFromSec(page.wps, avgWordLen)
 	wpm := correctWpm(page.lines, page.correct, page.time.limit-page.time.remaining)
-	accuracy := float64(page.totalCorrect) / (float64(page.totalCorrect) + float64(page.totalMistakes))
+	accuracy := float64(page.keystrokesCorrect) / (float64(page.keystrokesCorrect) + float64(page.keystrokesMistakes))
 	remainingMistakes := page.correct.Mistakes() // Uncorrected mistakes
 	recovery := 1.0
-	if page.totalMistakes > 0 {
-		recovery = 1.0 - (float64(remainingMistakes) / float64(page.totalMistakes))
+	if page.keystrokesMistakes > 0 {
+		recovery = 1.0 - (float64(remainingMistakes) / float64(page.keystrokesMistakes))
 	}
-	return InitResults(wpms, wpm, accuracy, page.totalMistakes, recovery)
+	return InitResults(wpms, wpm, accuracy, page.keystrokesCorrect, page.keystrokesMistakes, recovery)
 }
 
 func (page Typing) handleInput(msg tea.Msg, config Config) Page {
@@ -179,10 +179,10 @@ func (page Typing) handleInput(msg tea.Msg, config Config) Page {
 			// Check whether entered char is correct
 			if msg.String() == string(page.lines[page.cursorLine][page.cursor]) {
 				page.correct.Push(true)
-				page.totalCorrect++
+				page.keystrokesCorrect++
 			} else {
 				page.correct.Push(false)
-				page.totalMistakes++
+				page.keystrokesMistakes++
 			}
 			page.cursor++
 			// Check if move to next line

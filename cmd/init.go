@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"regexp"
 	"strings"
@@ -52,11 +51,14 @@ func InitialModel() model {
 			correct: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(foreground)
 			},
-			toEnter: func(str string) termenv.Style {
+			normal: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(foreground).Faint()
 			},
 			mistakes: func(str string) termenv.Style {
 				return termenv.String(str).Foreground(profile.Color("1")).Underline()
+			},
+			err: func(str string) termenv.Style {
+				return termenv.String(str).Foreground(profile.Color("1"))
 			},
 			cursor: func(str string) termenv.Style {
 				return termenv.String(str).Reverse().Bold()
@@ -175,14 +177,14 @@ func InitTyping(config Config) Typing {
 	lines := formatText(text, width)
 	maxLineLen := maxLen(lines)
 	return Typing{
-		lines:         lines,
-		correct:       NewCorrect(),
-		width:         width,
-		started:       false,
-		cursorLine:    0,
-		totalMistakes: 0,
-		totalCorrect:  0,
-		maxLineLen:    maxLineLen,
+		lines:              lines,
+		correct:            NewCorrect(),
+		width:              width,
+		started:            false,
+		cursorLine:         0,
+		keystrokesCorrect:  0,
+		keystrokesMistakes: 0,
+		maxLineLen:         maxLineLen,
 		time: &Time{
 			lastUpdated: time.Now(),
 			limit:       limit,
@@ -194,19 +196,21 @@ func InitTyping(config Config) Typing {
 
 func calcPerformance(accuracy float64, recovery float64, wpm float64, mistakes int) float64 {
 	ideal := 100.0
-	performance := (accuracy*recovery*wpm - float64(mistakes)*0.5) / ideal
+	performance := (accuracy*recovery*wpm - (float64(mistakes) * 0.5)) / ideal
 	performance = math.Min(performance, 1.0)
 	return performance
 }
 
-func InitResults(wpms []float64, wpm float64, accuracy float64, mistakes int, recovery float64) Results {
-	performance := calcPerformance(accuracy, recovery, wpm, mistakes)
+func InitResults(wpms []float64, wpm float64, accuracy float64, keystrokesCorrect int,
+	keystrokesMistakes int, recovery float64) Results {
+	performance := calcPerformance(accuracy, recovery, wpm, keystrokesMistakes)
 	return Results{
-		wpms:        wpms,
-		wpm:         wpm,
-		accuracy:    accuracy,
-		mistakes:    mistakes,
-		recovery:    recovery,
-		performance: performance,
+		wpms:               wpms,
+		wpm:                wpm,
+		accuracy:           accuracy,
+		keystrokesCorrect:  keystrokesCorrect,
+		keystrokesMistakes: keystrokesMistakes,
+		recovery:           recovery,
+		performance:        performance,
 	}
 }

@@ -24,7 +24,7 @@ func (menu MainMenu) view(styles Styles, width int, height int) string {
 		sb.WriteString(row)
 	}
 
-	exit_instr := style("\n  Press Esc to exit.\n", styles.toEnter)
+	exit_instr := style("\n  Press Esc to exit.\n", styles.normal)
 	sb.WriteString(exit_instr)
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())
@@ -66,7 +66,7 @@ func (typing Typing) view(styles Styles, width int, height int) string {
 			} else {
 				// Chars to enter
 				toEnter := style(string(typing.lines[i][j]), styles.toEnter)
-				sb.WriteString(toEnter)
+				sb.WriteString(normal)
 			}
 			charsProcessed++
 			if j == len(typing.lines[i])-1 {
@@ -105,8 +105,14 @@ func (results Results) view(styles Styles, width int, height int) string {
 	accuracy := style(fmt.Sprintf("%.2f", results.accuracy*100)+"%", styles.highlight)
 	sb.WriteString(accuracy)
 
-	sb.WriteString("   Mistakes: ")
-	mistakes := style(fmt.Sprintf("%d", results.mistakes), styles.highlight)
+	sb.WriteString("   Keystrokes: ")
+	correct := style(fmt.Sprintf("%d", results.keystrokesCorrect), styles.highlight)
+	sb.WriteString(correct)
+
+	divider := style(" | ", styles.normal)
+	sb.WriteString(divider)
+
+	mistakes := style(fmt.Sprintf("%d", results.keystrokesMistakes), styles.err)
 	sb.WriteString(mistakes)
 
 	sb.WriteString("   Recovery: ")
@@ -118,9 +124,9 @@ func (results Results) view(styles Styles, width int, height int) string {
 	bars := int(results.performance * float64(totalBars))
 	sb.WriteString(performanceLabel)
 	sb.WriteString(style(strings.Repeat("|", bars), styles.highlight))
-	sb.WriteString(style(strings.Repeat("|", totalBars-bars), styles.toEnter))
+	sb.WriteString(style(strings.Repeat("|", totalBars-bars), styles.normal))
 
-	restart := style("\n\nPress r to restart.", styles.toEnter)
+	restart := style("\n\nPress r to restart.", styles.normal)
 	sb.WriteString(restart)
 
 	s := lipgloss.NewStyle().Align(lipgloss.Left).Render(sb.String())

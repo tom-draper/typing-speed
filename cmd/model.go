@@ -25,27 +25,28 @@ type Time struct {
 }
 
 type Typing struct {
-	lines         []string
-	correct       *Correct
-	width         int
-	started       bool
-	totalMistakes int
-	totalCorrect  int
-	cursor        int
-	cursorLine    int
-	maxLineLen    int
-	time          *Time
-	wps           []int
-	words         int
+	lines              []string
+	correct            *Correct
+	width              int
+	started            bool
+	keystrokesCorrect  int
+	keystrokesMistakes int
+	cursor             int
+	cursorLine         int
+	maxLineLen         int
+	time               *Time
+	wps                []int
+	words              int
 }
 
 type Results struct {
-	wpm         float64
-	wpms        []float64
-	accuracy    float64
-	mistakes    int
-	recovery    float64
-	performance float64
+	wpm                float64
+	wpms               []float64
+	accuracy           float64
+	keystrokesMistakes int
+	keystrokesCorrect  int
+	recovery           float64
+	performance        float64
 }
 
 type Page interface {
@@ -55,9 +56,10 @@ type Page interface {
 type Style func(string) termenv.Style
 
 type Styles struct {
+	normal    Style
 	correct   Style
 	mistakes  Style
-	toEnter   Style
+	err       Style
 	cursor    Style
 	highlight Style
 	title     Style

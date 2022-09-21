@@ -19,11 +19,9 @@ func TestWikiLinks(t *testing.T) {
 
 func TestThousandWords(t *testing.T) {
 	commonWords := readWordsFile("../words/common_words.txt")
-
 	// for i, word := range commonWords {
 	// 	println(i, word)
 	// }
-
 	thousandWords(t, commonWords[:])
 }
 
