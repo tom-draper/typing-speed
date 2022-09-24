@@ -26,10 +26,10 @@ Built using [bubbletea](https://github.com/charmbracelet/bubbletea).
 
 ## Getting Started
 
-#### 1. Install dependencies
+#### 1. Fetch dependencies
 
 ```bash
-go get -u all
+go mod download
 ```
 
 #### 2. Compile to binary
