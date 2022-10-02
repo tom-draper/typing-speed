@@ -4,7 +4,7 @@ A configurable TUI typing speed tester with performance metrics and graph.
 
 To increase the difficulty, the current trending Wikipedia topics can be used as word content, with optional punctuation, capitalisation and digits.
 
-Built using [bubbletea](https://github.com/charmbracelet/bubbletea).
+Built using [bubbletea](https://github.com/charmbracelet/bubbletea) from charm.sh.
 
 <br>
 
