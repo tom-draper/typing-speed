@@ -120,7 +120,8 @@ func (results Results) view(styles Styles, width int, height int) string {
 	sb.WriteString(recovery)
 
 	performanceLabel := "\n\nPerformance: "
-	totalBars := int(float64(width)*0.45) - len(performanceLabel)
+	// totalBars := int(float64(width)*60) - len(performanceLabel)
+	totalBars := 58
 	bars := int(results.performance * float64(totalBars))
 	sb.WriteString(performanceLabel)
 	sb.WriteString(style(strings.Repeat("|", bars), styles.highlight))
@@ -134,21 +135,12 @@ func (results Results) view(styles Styles, width int, height int) string {
 	return lipgloss.Place(width, height, lipgloss.Center, lipgloss.Center, s)
 }
 
-func smoothWpms(wpms []float64) {
-	for i, wpm := range wpms {
-		if i > 0 {
-			wpms[i] = (wpm + wpms[i-1]) / 2
-		}
-	}
-}
-
 func plotWpms(wpms []float64, width int) string {
-	smoothWpms(wpms)
 	wpmGraph := asciigraph.Plot(
 		wpms,
 		asciigraph.Precision(0),
 		asciigraph.Height(6),
-		asciigraph.Width(int(float64(width)*0.4)),
+		asciigraph.Width(63),
 		asciigraph.CaptionColor(2),
 		asciigraph.LabelColor(2),
 	)

@@ -197,6 +197,14 @@ func InitTyping(config Config) Typing {
 	}
 }
 
+func smoothWpms(wpms []float64) {
+	for i, wpm := range wpms {
+		if i > 0 {
+			wpms[i] = (wpm + wpms[i-1]) / 2
+		}
+	}
+}
+
 func calcPerformance(accuracy float64, recovery float64, wpm float64, mistakes int) float64 {
 	ideal := 100.0
 	performance := (accuracy*recovery*wpm - (float64(mistakes) * 0.5)) / ideal
@@ -206,6 +214,7 @@ func calcPerformance(accuracy float64, recovery float64, wpm float64, mistakes i
 
 func InitResults(wpms []float64, wpm float64, accuracy float64, keystrokesCorrect int,
 	keystrokesMistakes int, recovery float64) Results {
+	smoothWpms(wpms)
 	performance := calcPerformance(accuracy, recovery, wpm, keystrokesMistakes)
 	return Results{
 		wpms:               wpms,
