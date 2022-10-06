@@ -2,12 +2,12 @@
 
 A configurable TUI typing speed tester with performance metrics and graph.
 
-To increase the difficulty, the current trending Wikipedia topics can be used as word content, with optional punctuation, capitalisation and digits.
+To make practice interesting, the current trending topics on Wikipedia can be used as test sentences. Alternatively, a list of the 1000 most common words can be used instead. Punctuation, capitalisation and digits are optional.
 
 Built using [Bubble Tea](https://github.com/charmbracelet/bubbletea) by Charm.
 
 <p align="center">
-	<img src="https://user-images.githubusercontent.com/41476809/194393986-28d4b18b-937f-4b71-918c-fa42e872cd4b.gif">
+	<img src="https://user-images.githubusercontent.com/41476809/194396400-de11764b-741e-4646-9782-433d747df04f.gif">
 </p>
 
 
