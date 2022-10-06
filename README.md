@@ -6,23 +6,10 @@ To increase the difficulty, the current trending Wikipedia topics can be used as
 
 Built using [Bubble Tea](https://github.com/charmbracelet/bubbletea) by Charm.
 
-<br>
-
 <p align="center">
-	<img src="https://user-images.githubusercontent.com/41476809/179508232-ddac709c-2ec2-4eed-9378-6a354a3bd87e.png">
+	<img src="https://user-images.githubusercontent.com/41476809/194393986-28d4b18b-937f-4b71-918c-fa42e872cd4b.gif">
 </p>
 
-<p align="center">
-	<img src="https://user-images.githubusercontent.com/41476809/179508235-84fc1bc1-d781-41f9-bc86-c8c2cb41ba03.png">
-</p>
-
-<p align="center">
-	<img src="https://user-images.githubusercontent.com/41476809/179508237-d2fae177-45af-47d0-83f1-37f8e618d908.png">
-</p>
-
-<p align="center">
-	<img src="https://user-images.githubusercontent.com/41476809/179508240-76fb384f-7ff8-4351-b8da-b7f47031f910.png">
-</p>
 
 ## Getting Started
 
