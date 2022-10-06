@@ -13,22 +13,29 @@ Built using [Bubble Tea](https://github.com/charmbracelet/bubbletea) by Charm.
 
 ## Getting Started
 
-#### 1. Fetch dependencies
+### 1. Fetch dependencies
 
 ```bash
 go mod download
 ```
 
-#### 2. Compile to binary
+### 2. Compile to binary
 
 ```bash
 go build -o bin main.go
 ```
 
-#### 3. Execute binary
+### 3. Execute binary
 
 ```bash
 ./bin/main
 ```
+
+## Runing Tests
+
+```bash
+go run ./cmd -v
+```
+
 
 
