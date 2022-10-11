@@ -6,7 +6,7 @@ import (
 )
 
 func TestWikiLinks(t *testing.T) {
-	links := getWikiLinksOld()
+	links := wikiLinks()
 	seen := make(map[string]struct{})
 	for _, link := range links {
 		if _, ok := seen[link]; ok {
