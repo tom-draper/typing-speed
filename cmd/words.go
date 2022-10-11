@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"io"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -14,21 +13,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 )
-
-func request(url string) string {
-	res, err := http.Get(url)
-	if err != nil {
-		panic(err)
-	}
-
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	return string(body)
-}
 
 type WikiMainPage struct {
 	BatchComplete string `json:"batchcomplete"`
@@ -89,53 +73,11 @@ func fetchPage(url string) WikiPage {
 	return page
 }
 
-func validLink(link string) bool {
-	return link != "/wiki/" && link != "/wiki/Main_Page" && link != "/wiki/Wikipedia" && link != "/wiki/Free_content" && link != "/wiki/Encyclopedia" && link != "/wiki/English_language" && !strings.Contains(link, ".") && !strings.Contains(link, ":")
-}
-
-func getWikiLinksOld() []string {
-	page := request("https://en.wikipedia.org/wiki/Main_Page")
-	re := regexp.MustCompile(`/wiki/[^"]*`)
-	matches := re.FindAll([]byte(page), -1)
-
-	seen := make(map[string]struct{})
-	var links []string
-	for i := range matches {
-		link := string(matches[i])
-		if _, ok := seen[link]; !ok && validLink(link) {
-			links = append(links, link)
-			seen[link] = struct{}{}
-		}
-	}
-
-	return links
-}
-
 func randomLink(links []string) string {
 	rand.Seed(time.Now().UnixNano())
 	n := rand.Intn(len(links))
 	link := links[n]
 	return link
-}
-
-func htmlDoc(url string) *goquery.Document {
-	// Request the HTML page
-	res, err := http.Get(url)
-	if err != nil {
-		panic(err)
-	}
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
-
-	// Load the HTML document
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	return doc
 }
 
 func cleanParagraph(paragraph string) string {
@@ -186,13 +128,6 @@ func extractParagraphs(doc *goquery.Document) string {
 	return text.String()
 }
 
-func pageContentOld(link string) string {
-	url := "https://en.wikipedia.org/" + link
-	doc := htmlDoc(url)
-
-	paragraphs := extractParagraphs(doc)
-	return paragraphs
-}
 func pageContent(link string) string {
 	url := "https://en.wikipedia.org/w/api.php?format=xml&action=query&prop=extracts&format=json&redirects=true&titles=" + strings.ReplaceAll(link, " ", "%20")
 
@@ -210,18 +145,6 @@ func pageContent(link string) string {
 	return paragraphs
 }
 
-func WikiWords2(config Config) string {
-	links := config.wikiLinks
-	if links == nil {
-		// If haven't requested wiki links before
-		links = getWikiLinksOld()
-		config.wikiLinks = links
-	}
-	link := randomLink(links)
-	text := pageContentOld(link)
-	return text
-}
-
 func extractMainPageLinks(page WikiMainPage) []string {
 	var links []string
 	for _, link := range page.Query.Pages["15580374"].Links {
@@ -230,14 +153,14 @@ func extractMainPageLinks(page WikiMainPage) []string {
 	return links
 }
 
-func validLink2(link string) bool {
+func validLink(link string) bool {
 	return !strings.Contains(link, "Wikipedia") && !strings.Contains(link, "Template") && !strings.Contains(link, "Help") && !strings.Contains(link, "Portal")
 }
 
 func filterLinks(links []string) []string {
 	var filteredLinks []string
 	for _, link := range links {
-		if validLink2(link) {
+		if validLink(link) {
 			filteredLinks = append(filteredLinks, link)
 		}
 	}
