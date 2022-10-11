@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/json"
 	"io"
 	"log"
 	"math/rand"
@@ -29,11 +30,70 @@ func request(url string) string {
 	return string(body)
 }
 
+type WikiMainPage struct {
+	BatchComplete string `json:"batchcomplete"`
+	Query         struct {
+		Pages map[string]struct {
+			PageID int    `json:"pageid"`
+			Ns     int    `json:"ns"`
+			Title  string `json:"title"`
+			Links  []struct {
+				Ns    int    `json:"ns"`
+				Title string `json:"title"`
+			} `json:"links"`
+		} `json:"pages"`
+	} `json:"query"`
+}
+
+type WikiPage struct {
+	BatchComplete string `json:"batchcomplete"`
+	Query         struct {
+		Pages map[string]struct {
+			PageID  int    `json:"pageid"`
+			Ns      int    `json:"ns"`
+			Title   string `json:"title"`
+			Extract string `json:"extract"`
+		} `json:"pages"`
+	} `json:"query"`
+}
+
+func fetch(url string) []byte {
+	res, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+	return body
+}
+
+func fetchMainPage(url string) WikiMainPage {
+	body := fetch(url)
+
+	var page WikiMainPage
+	json.Unmarshal(body, &page) // Parse JSON
+
+	return page
+}
+
+func fetchPage(url string) WikiPage {
+	body := fetch(url)
+
+	var page WikiPage
+	json.Unmarshal(body, &page) // Parse JSON
+
+	return page
+}
+
 func validLink(link string) bool {
 	return link != "/wiki/" && link != "/wiki/Main_Page" && link != "/wiki/Wikipedia" && link != "/wiki/Free_content" && link != "/wiki/Encyclopedia" && link != "/wiki/English_language" && !strings.Contains(link, ".") && !strings.Contains(link, ":")
 }
 
-func getWikiLinks() []string {
+func getWikiLinksOld() []string {
 	page := request("https://en.wikipedia.org/wiki/Main_Page")
 	re := regexp.MustCompile(`/wiki/[^"]*`)
 	matches := re.FindAll([]byte(page), -1)
@@ -126,19 +186,77 @@ func extractParagraphs(doc *goquery.Document) string {
 	return text.String()
 }
 
-func pageContent(link string) string {
+func pageContentOld(link string) string {
 	url := "https://en.wikipedia.org/" + link
 	doc := htmlDoc(url)
 
 	paragraphs := extractParagraphs(doc)
 	return paragraphs
 }
+func pageContent(link string) string {
+	url := "https://en.wikipedia.org/w/api.php?format=xml&action=query&prop=extracts&format=json&redirects=true&titles=" + strings.ReplaceAll(link, " ", "%20")
+
+	page := fetchPage(url)
+
+	var paragraphs string
+	for pageID := range page.Query.Pages {
+		doc, err := goquery.NewDocumentFromReader(strings.NewReader(page.Query.Pages[pageID].Extract))
+		if err != nil {
+			panic(err)
+		}
+		paragraphs = extractParagraphs(doc)
+	}
+
+	return paragraphs
+}
+
+func WikiWords2(config Config) string {
+	links := config.wikiLinks
+	if links == nil {
+		// If haven't requested wiki links before
+		links = getWikiLinksOld()
+		config.wikiLinks = links
+	}
+	link := randomLink(links)
+	text := pageContentOld(link)
+	return text
+}
+
+func extractMainPageLinks(page WikiMainPage) []string {
+	var links []string
+	for _, link := range page.Query.Pages["15580374"].Links {
+		links = append(links, strings.TrimSpace(link.Title))
+	}
+	return links
+}
+
+func validLink2(link string) bool {
+	return !strings.Contains(link, "Wikipedia") && !strings.Contains(link, "Template") && !strings.Contains(link, "Help") && !strings.Contains(link, "Portal")
+}
+
+func filterLinks(links []string) []string {
+	var filteredLinks []string
+	for _, link := range links {
+		if validLink2(link) {
+			filteredLinks = append(filteredLinks, link)
+		}
+	}
+	return filteredLinks
+}
+
+func wikiLinks() []string {
+	url := "https://en.wikipedia.org/w/api.php?action=query&titles=Main_Page&prop=links&format=json&pllimit=max"
+	page := fetchMainPage(url)
+	links := extractMainPageLinks(page)
+	links = filterLinks(links)
+	return links
+}
 
 func WikiWords(config Config) string {
 	links := config.wikiLinks
 	if links == nil {
-		// If haven't requested wiki links before
-		links = getWikiLinks()
+		// If haven't requesed wiki links before
+		links = wikiLinks()
 		config.wikiLinks = links
 	}
 	link := randomLink(links)
