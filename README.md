@@ -10,7 +10,6 @@ Inspired by [typioca](https://github.com/bloznelis/typioca) and built using [Bub
 	<img src="https://user-images.githubusercontent.com/41476809/194396400-de11764b-741e-4646-9782-433d747df04f.gif">
 </p>
 
-
 ## Getting Started
 
 ### 1. Fetch dependencies
