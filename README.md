@@ -36,6 +36,3 @@ go build -o bin main.go
 ```bash
 go run ./cmd -v
 ```
-
-
-
