@@ -120,8 +120,8 @@ func (results Results) view(styles Styles, width int, height int) string {
 	sb.WriteString(recovery)
 
 	performanceLabel := "\n\nPerformance: "
-	// totalBars := int(float64(width)*60) - len(performanceLabel)
 	totalBars := 58
+	// totalBars := int(float64(width)*60) - len(performanceLabel)
 	bars := int(results.performance * float64(totalBars))
 	sb.WriteString(performanceLabel)
 	sb.WriteString(style(strings.Repeat("|", bars), styles.highlight))
