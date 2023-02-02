@@ -152,28 +152,22 @@ func (page Typing) handleInput(msg tea.Msg, config Config) Page {
 		switch msg.String() {
 		case "ctrl+c", "esc":
 			return InitMainMenu()
-		case "backspace", "ctrl+backspace":
-			// If on the first char of a line
-			if page.cursor == 0 {
-				if page.cursorLine > 0 {
-					page.cursorLine--
-					page.cursor = len(page.lines[page.cursorLine]) - 1
-				}
-			} else {
-				// Register word completed
-				if page.lines[page.cursorLine][page.cursor] == ' ' {
-					page.words--
-				}
-				page.correct.Pop()
-				page.cursor--
+		case "ctrl+h", "ctrl+backspace":
+			// ctrl+backspace appears to be mapped to ctrl+h
+			page.handleBackspace()
+			// Repeat backspace until space is found
+			for !page.atStart() && !page.atChar(' ') {
+				page.handleBackspace()
 			}
+		case "backspace":
+			page.handleBackspace()
 		default:
 			// Check if typed last char
-			if page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1 {
+			if page.atEnd() {
 				return showResults(page)
 			}
 			// If encountered a space, increment words completed
-			if page.lines[page.cursorLine][page.cursor] == ' ' {
+			if page.atChar(' ') {
 				page.words++
 			}
 			// Check whether entered char is correct
@@ -184,6 +178,7 @@ func (page Typing) handleInput(msg tea.Msg, config Config) Page {
 				page.correct.Push(false)
 				page.keystrokesMistakes++
 			}
+			// Move to next char
 			page.cursor++
 			// Check if move to next line
 			if page.cursor >= len(page.lines[page.cursorLine]) {
@@ -199,6 +194,35 @@ func (page Typing) handleInput(msg tea.Msg, config Config) Page {
 	}
 
 	return page
+}
+
+func (page Typing) atStart() bool {
+	return page.cursor == 0 && page.cursorLine == 0
+}
+
+func (page Typing) atEnd() bool {
+	return page.cursorLine == len(page.lines)-1 && page.cursor == len(page.lines[len(page.lines)-1])-1
+}
+
+func (page Typing) atChar(char byte) bool {
+	return page.lines[page.cursorLine][page.cursor] == char
+}
+
+func (page *Typing) handleBackspace() {
+	// If on the first char of a line
+	if page.cursor == 0 {
+		if page.cursorLine > 0 {
+			page.cursorLine--
+			page.cursor = len(page.lines[page.cursorLine]) - 1
+		}
+	} else {
+		// Register word completed
+		if page.lines[page.cursorLine][page.cursor] == ' ' {
+			page.words--
+		}
+		page.correct.Pop()
+		page.cursor--
+	}
 }
 
 func (page Results) handleInput(msg tea.Msg, config Config) Page {

@@ -199,8 +199,8 @@ func InitTyping(config Config) Typing {
 
 func smoothWpms(wpms []float64) {
 	for i, wpm := range wpms {
-		if i > 0 {
-			wpms[i] = (wpm + wpms[i-1]) / 2
+		if i > 1 {
+			wpms[i] = (wpm + wpms[i-1] + wpms[i-2]) / 3
 		}
 	}
 }
