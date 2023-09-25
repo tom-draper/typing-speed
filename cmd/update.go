@@ -262,11 +262,11 @@ func (page Settings) handleInput(msg tea.Msg, config Config) Page {
 			switch page.choices[page.cursor] {
 			case "Wikipedia":
 				// Turn off other word collections
-				delete(config.config, 1)
+				delete(config.config, 0)
 				config.config[page.cursor] = struct{}{} // Turn on wikipedia
 			case "Common words":
 				// Turn off other word collections
-				delete(config.config, 0)
+				delete(config.config, 1)
 				config.config[page.cursor] = struct{}{} // Turn on common words
 			case "30s":
 				// Turn off 60s and 120s
