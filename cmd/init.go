@@ -92,7 +92,7 @@ func InitMainMenu() MainMenu {
 
 func InitSettings(config Config) Settings {
 	return Settings{
-		choices:  []string{"Wikipedia", "Common words", "30s", "60s", "120s", "Capitalisation", "Punctuation", "Numbers", "Back"},
+		choices:  []string{"Common words", "Wikipedia", "30s", "60s", "120s", "Capitalisation", "Punctuation", "Numbers", "Back"},
 		selected: config.config,
 	}
 }
@@ -135,9 +135,9 @@ func applyConfigFilters(text string, config Config) string {
 func typingText(config Config) string {
 	var text string
 	if _, ok := config.config[0]; ok {
-		text = WikiWords(config)
-	} else if _, ok := config.config[1]; ok {
 		text = CommonWords("words/common_words.txt")
+	} else if _, ok := config.config[1]; ok {
+		text = WikiWords(config)
 	}
 
 	text = applyConfigFilters(text, config)
@@ -208,6 +208,9 @@ func smoothWpms(wpms []float64) {
 func calcPerformance(accuracy float64, recovery float64, wpm float64, mistakes int) float64 {
 	ideal := 100.0
 	performance := (accuracy*recovery*wpm - (float64(mistakes) * 0.5)) / ideal
+	if performance <= 0.0 {
+		performance = 0.0
+	}
 	performance = math.Min(performance, 1.0)
 	return performance
 }
